@@ -45,9 +45,6 @@ exec('find '. $tempDir .' | grep composer.lock | xargs rm');
 $zipArchive = new ZipArchive();
 $zipArchive->open($outputName, ZipArchive::CREATE);
 
-$zipArchiveTrial = new ZipArchive();
-$zipArchiveTrial->open($outputNameTrial, ZipArchive::CREATE);
-
 $iterator = new \RecursiveIteratorIterator(
     new \RecursiveDirectoryIterator($tempDir, \RecursiveDirectoryIterator::SKIP_DOTS),
     \RecursiveIteratorIterator::SELF_FIRST
@@ -60,22 +57,15 @@ foreach ($iterator as $name => $file) {
         continue;
     } else {
         $zipArchive->addFile($name, $local_name);
-        $zipArchiveTrial->addFile($name, $local_name);
     }
 }
 
 $trialFile =  $tempDir . '/' . $addonDistDir . '/Config/trial';
-exec('touch ' . $trialFile);
-$zipArchiveTrial->addFile($trialFile, $addonDistDir . '/Config/trial');
 
 $zipArchive->close();
-$zipArchiveTrial->close();
 
 // Now that we've made the build, run install gain to regain dev dependencies we might have just deleted
 exec('composer install -o --no-ansi --no-interaction --working-dir='. $baseDir);
 
 exec(sprintf('cp %s %s', $outputName, '~/Dropbox/ee/releases/'. $addonName .'/'. $outputFileName));
 echo sprintf('Build %s created!', $outputFileName) . "\n";
-
-exec(sprintf('cp %s %s', $outputNameTrial, '~/Dropbox/ee/releases/'. $addonName .'/'. $outputFileNameTrial));
-echo sprintf('Build %s created!', $outputFileNameTrial) . "\n";

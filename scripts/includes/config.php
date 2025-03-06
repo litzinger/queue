@@ -1,8 +1,8 @@
 <?php
 
 $baseDir = dirname(__DIR__, 2);
-$addonName = 'carson';
-$namespacePrefix = 'BoldMinded\Carson';
+$addonName = 'queue';
+$namespacePrefix = 'BoldMinded\Queue';
 $addonDirName = 'addons/' . $addonName;
 $addonDir = $baseDir . '/' . $addonDirName;
 $addonDistDir = 'system/user/' . $addonDirName;
