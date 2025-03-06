@@ -1,0 +1,7 @@
+!**/.gitkeep
+*.zip
+/vendor
+/addons/queue/vendor
+/addons/queue/vendor/**/.git
+/addons/queue/vendor-build
+/addons/queue/vendor-bin/php-scoper/vendor/

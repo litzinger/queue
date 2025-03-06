@@ -1,0 +1,52 @@
+{
+  "name": "boldminded/queue",
+  "description": "ExpressionEngine's missing queue module",
+  "license": "proprietary",
+  "require": {
+    "litzinger/basee": "dev-master",
+    "bamarni/composer-bin-plugin": "^1.8.2",
+    "illuminate/queue": "^8.83",
+    "illuminate/bus": "^8.83",
+    "illuminate/contracts": "^8.83",
+    "nesbot/carbon": "2.50.0",
+    "illuminate/events": "^8.83",
+    "illuminate/redis": "^8.83"
+  },
+  "config": {
+    "vendor-dir": "addons/queue/vendor",
+    "preferred-install": "dist",
+    "platform": {
+      "php": "8.2"
+    },
+    "allow-plugins": {
+      "bamarni/composer-bin-plugin": true
+    }
+  },
+  "extra": {
+    "bamarni-bin": {
+      "bin-links": false,
+      "target-directory": "addons/queue/vendor-bin",
+      "forward-command": false
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "BoldMinded\\Queue\\" : "addons/queue"
+    }
+  },
+  "scripts": {
+    "scope": [
+      "rm -rf ./addons/queue/vendor-build",
+      "./addons/queue/vendor-bin/php-scoper/vendor/bin/php-scoper add-prefix --output-dir=vendor-build --working-dir=addons/queue --force",
+      "COMPOSER_VENDOR_DIR=addons/queue/vendor-build composer dump-autoload"
+    ],
+    "post-install-cmd": [
+      "@composer bin all install --ansi",
+      "@scope"
+    ],
+    "post-update-cmd": [
+      "@composer bin all install --ansi",
+      "@scope"
+    ]
+  }
+}
