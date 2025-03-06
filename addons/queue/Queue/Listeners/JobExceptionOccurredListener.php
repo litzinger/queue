@@ -4,7 +4,7 @@ namespace BoldMinded\Queue\Queue\Listeners;
 
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Events\JobExceptionOccurred;
 
-class JobExceptionOccurredListener
+class JobExceptionOccurredListener extends AbstractListener
 {
     public function handle(JobExceptionOccurred $event)
     {

@@ -4,7 +4,7 @@ namespace BoldMinded\Queue\Queue\Listeners;
 
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Events\JobProcessed;
 
-class JobProcessedListener
+class JobProcessedListener extends AbstractListener
 {
     public function handle(JobProcessed $event)
     {

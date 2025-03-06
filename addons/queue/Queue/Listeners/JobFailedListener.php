@@ -5,7 +5,7 @@ namespace BoldMinded\Queue\Queue\Listeners;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Events\JobFailed;
 use BoldMinded\Queue\Model\ImportStatus;
 
-class JobFailedListener
+class JobFailedListener extends AbstractListener
 {
     public function handle(JobFailed $event)
     {

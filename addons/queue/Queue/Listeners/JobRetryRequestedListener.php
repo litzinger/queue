@@ -4,7 +4,7 @@ namespace BoldMinded\Queue\Queue\Listeners;
 
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Events\JobRetryRequested;
 
-class JobRetryRequestedListener
+class JobRetryRequestedListener extends AbstractListener
 {
     public function handle(JobRetryRequested $event)
     {
