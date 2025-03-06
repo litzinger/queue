@@ -8,6 +8,9 @@ class JobExceptionOccurredListener
 {
     public function handle(JobExceptionOccurred $event)
     {
-        ee('queue:Logger')->developer($event->exception->getMessage());
+        ee('queue:Logger')->developer(sprintf(
+            '[Queue] Exception Occurred %s',
+            $event->exception->getMessage()
+        ));
     }
 }

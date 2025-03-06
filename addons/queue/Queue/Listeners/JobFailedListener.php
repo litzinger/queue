@@ -9,6 +9,9 @@ class JobFailedListener
 {
     public function handle(JobFailed $event)
     {
-        ee('queue:Logger')->developer($event->exception->getMessage());
+        ee('queue:Logger')->developer(sprintf(
+            '[Queue] Job Failed %s',
+            $event->exception->getMessage()
+        ));
     }
 }

@@ -27,7 +27,6 @@ if (!defined('QUEUE_NAME')) {
     }
 
     define('QUEUE_NAME', 'Queue');
-    define('QUEUE_CLASS_NAME', 'default');
 }
 
 return [
@@ -127,7 +126,7 @@ return [
             ee()->load->library('logger');
             return new Logger(
                 logger: ee()->logger,
-                enabled: true,
+                enabled: bool_config_item('queue_enable_logging'),
             );
         },
     ],
@@ -135,5 +134,4 @@ return [
         'queue:purge' => BoldMinded\Queue\Commands\CommandQueuePurge::class,
         'queue:consume' => BoldMinded\Queue\Commands\CommandConsumeQueue::class,
     ],
-
 ];
