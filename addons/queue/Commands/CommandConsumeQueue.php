@@ -43,6 +43,7 @@ class CommandConsumeQueue extends Cli
      */
     public $commandOptions = [
         'queue_name,name:' => 'Name of the queue to consume',
+        'limit,limit:' => 'Limit number of jobs to consume each time this is executed. Default is 1.',
     ];
 
     /**
@@ -53,11 +54,12 @@ class CommandConsumeQueue extends Cli
     {
         try {
             $queueName = $this->option('--queue_name') ?? 'default';
+            $limit = $this->option('--limit') ?? 1;
 
             $this->info(sprintf('Running %s consumer...', $queueName));
 
             $queueWorkerOptions = ee('queue:QueueWorkerOptions');
-            $queueWorkerOptions->maxJobs = 1;
+            $queueWorkerOptions->maxJobs = $limit;
 
             $queueWorker = ee('queue:QueueWorker');
             $queueWorker->daemon('default', $queueName, $queueWorkerOptions);

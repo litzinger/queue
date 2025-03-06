@@ -6,13 +6,9 @@ use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Queue;
 
 class QueueStatus
 {
-    /**
-     * @param string $importId
-     * @return array
-     */
-    public function fetch(string $importId = ''): array
+    public function getSize(string $queueName = 'default')
     {
-        return [];
+        return $this->getQueueConnection()->size($queueName);
     }
 
     /**

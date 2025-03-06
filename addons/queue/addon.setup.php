@@ -105,6 +105,7 @@ return [
                 $maxExecutionTime = 30;
             }
 
+            // @todo add EE config overrides for most/all of these
             return new WorkerOptions(
                 'default',         // name
                 0,                 // backoff

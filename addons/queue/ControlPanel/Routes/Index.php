@@ -24,7 +24,11 @@ class Index extends AbstractRoute
     {
         $this->addBreadcrumb('index', 'Index');
 
-        $variables = [];
+        $queueStatus = ee('queue:QueueStatus');
+
+        $variables = [
+            'size' => $queueStatus->getSize(),
+        ];
 
         $this->setBody('Index', $variables);
 

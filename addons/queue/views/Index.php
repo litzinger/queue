@@ -1,3 +1,5 @@
 <?php
 
-echo "<h2>Time to make magic</h2>";
+echo "<h2>Items in queue</h2>";
+
+echo $size;
