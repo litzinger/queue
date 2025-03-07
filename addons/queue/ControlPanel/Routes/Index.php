@@ -2,6 +2,7 @@
 
 namespace BoldMinded\Queue\ControlPanel\Routes;
 
+use BoldMinded\Queue\Actions\ActionUrl;
 use ExpressionEngine\Service\Addon\Controllers\Mcp\AbstractRoute;
 
 class Index extends AbstractRoute
@@ -26,9 +27,12 @@ class Index extends AbstractRoute
 
         $queueStatus = ee('queue:QueueStatus');
 
+        $urlQueueStatus = (new ActionUrl)->getActionUrl('Queue', 'FetchQueueStatus');
+
         $variables = [
             'size' => $queueStatus->getSize(),
             'assetPath' => URL_THIRD_THEMES . '/queue/assets/',
+            'urlQueueStatus' => $urlQueueStatus,
         ];
 
         $this->setBody('Index', $variables);

@@ -1,27 +1,40 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
+import config from './Config.ts'
 
 function App() {
-  const [count, setCount] = useState(0)
+    const [queueStatus, setQueueStatus] = useState({
+        size: 0
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(config.urlQueueStatus);
+                const result = await response.json();
+                setQueueStatus(result);
+            } catch (error) {
+                console.error('Error fetching queue status:', error);
+            }
+        };
+
+        const interval = setInterval(fetchData, 1000);
+
+        fetchData();
+
+        return () => clearInterval(interval);
+    }, []);
 
   return (
-    <>
-      <div>
+      <div className="panel">
+          <div className="panel-heading">
+              <h2>Items in queue: {queueStatus.size}</h2>
+          </div>
+          <div className="panel-body">
+
+          </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;

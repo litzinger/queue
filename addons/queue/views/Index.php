@@ -1,13 +1,14 @@
+<script>
+    window.APP_CONFIG = {
+        urlQueueStatus: "<?= $urlQueueStatus ?>",
+    };
+</script>
+<link rel="stylesheet" crossorigin href="<?= $assetPath ?>index.css">
+<div id="queue-app"></div>
+<script type="module" crossorigin src="<?= $assetPath ?>index.js"></script>
+
 <div class="panel">
-    <div class="panel-heading">
-        <h2>Items in queue: <?= $size ?></h2>
-    </div>
     <div class="panel-body">
-
-        <link rel="stylesheet" crossorigin href="<?= $assetPath ?>index.css">
-        <div id="queue-app"></div>
-        <script type="module" crossorigin src="<?= $assetPath ?>index.js"></script>
-
         <h3>Consuming Jobs</h3>
         <p>Make sure the following crontab is added to your server. This will run very minute and process as many jobs
             in the queue until the process reaches the PHP timeout.</p>
@@ -42,8 +43,7 @@ $config['queue'] = [<br />
 </code>
 </pre>
 
-        <h3>Using</h3>
+        <h3>Adding to the queue</h3>
         <pre><code>ee('queue:QueueManager')->push(MyJob::class, 'payload')</code></pre>
     </div>
 </div>
-
