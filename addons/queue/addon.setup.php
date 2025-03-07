@@ -66,13 +66,14 @@ return [
         },
         'QueueManager' => function ($provider) {
             $config = ee()->config->item('queue') ?: [];
+            $driver = $config['driver'] ?? 'database';
 
             // @todo this is incomplete and unsupported
-            if (isset($config['driver']) && $config['driver'] === 'sqs') {
+            if ($driver === 'sqs') {
                 return (new SQSDriver($provider, $config['sqs_config'] ?? []))->getQueueManager();
             }
 
-            if (isset($config['driver']) && $config['driver'] === 'redis') {
+            if ($driver === 'redis') {
                 return (new RedisDriver($provider, ['default' => $config['redis_config'] ?? []]))->getQueueManager();
             }
 
@@ -104,19 +105,20 @@ return [
                 $maxExecutionTime = 30;
             }
 
-            // @todo add EE config overrides for most/all of these
+            $config = ee()->config->item('queue') ?: [];
+
             return new WorkerOptions(
-                'default',         // name
-                0,                 // backoff
-                1024,              // memory
-                $maxExecutionTime, // timeout
-                3,                 // sleep
-                3,                 // max tries
-                \false,            // force
-                \true,             // stop when empty
-                1,                 // max jobs or limit
-                $maxExecutionTime, // max time
-                0 // rest
+                name: $config['name'] ?? 'default',
+                backoff: $config['backoff'] ?? 0,
+                memory: $config['memory'] ?? 1024,
+                timeout: $config['timeout'] ?? $maxExecutionTime,
+                sleep: $config['sleep'] ?? 3,
+                maxTries: $config['max_tries'] ?? 3,
+                force: $config['force'] ?? false,
+                stopWhenEmpty: $config['stop_when_empty'] ?? true,
+                maxJobs: $config['max_jobs'] ?? 1,
+                maxTime: $config['max_time'] ?? $maxExecutionTime,
+                rest: $config['rest'] ?? 0
             );
         },
         'QueueStatus' => function () {
@@ -124,13 +126,16 @@ return [
         },
         'Logger' => function () {
             ee()->load->library('logger');
+            $config = ee()->config->item('queue') ?: [];
+
             return new Logger(
                 logger: ee()->logger,
-                enabled: bool_config_item('queue_enable_logging'),
+                enabled: get_bool_from_string($config['enable_logging'] ?? 'no'),
             );
         },
     ],
     'commands' => [
+        'queue:test' => BoldMinded\Queue\Commands\CommandQueueTest::class,
         'queue:purge' => BoldMinded\Queue\Commands\CommandQueuePurge::class,
         'queue:consume' => BoldMinded\Queue\Commands\CommandConsumeQueue::class,
     ],

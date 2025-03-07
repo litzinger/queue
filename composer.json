@@ -5,12 +5,12 @@
   "require": {
     "litzinger/basee": "dev-master",
     "bamarni/composer-bin-plugin": "^1.8.2",
-    "illuminate/queue": "^8.83",
-    "illuminate/bus": "^8.83",
-    "illuminate/contracts": "^8.83",
-    "nesbot/carbon": "2.50.0",
-    "illuminate/events": "^8.83",
-    "illuminate/redis": "^8.83"
+    "illuminate/queue": "^12.1",
+    "illuminate/bus": "^12.1",
+    "illuminate/contracts": "^12.1",
+    "nesbot/carbon": "3.8.6",
+    "illuminate/events": "^12.1",
+    "illuminate/redis": "^12.1"
   },
   "config": {
     "vendor-dir": "addons/queue/vendor",
