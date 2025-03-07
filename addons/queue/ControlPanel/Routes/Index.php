@@ -28,6 +28,7 @@ class Index extends AbstractRoute
 
         $variables = [
             'size' => $queueStatus->getSize(),
+            'assetPath' => URL_THIRD_THEMES . '/queue/assets/',
         ];
 
         $this->setBody('Index', $variables);
