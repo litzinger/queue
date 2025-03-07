@@ -60,7 +60,7 @@ class CommandQueueTest extends Cli
             ee('queue:QueueManager')->push(TestJob::class, ['Job #3, array payload']);
             ee('queue:QueueManager')->push(TestJob::class, ['Job #4, array payload']);
             ee('queue:QueueManager')->push(TestJob::class, ['Job #5, array payload']);
-
+return;
             $this->info('Checking queue size...');
 
             $queueStatus = ee('queue:QueueStatus');

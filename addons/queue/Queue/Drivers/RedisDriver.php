@@ -33,7 +33,7 @@ class RedisDriver implements QueueDriverInterface
     /**
      * @return QueueManager
      */
-    public function getQueueManager(): QueueManager
+    public function getQueueManager(): QueueManager|\Illuminate\Queue\QueueManager
     {
         $capsuleQueueManager = new QueueCapsuleManager;
 

@@ -7,6 +7,7 @@ use BoldMinded\Queue\Dependency\Illuminate\Database\ConnectionResolver;
 use BoldMinded\Queue\Dependency\Illuminate\Database\DatabaseManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\DatabaseConnector;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
+use BoldMinded\Queue\Dependency\Illuminate\Support\Collection;
 use ExpressionEngine\Core\Provider;
 
 class DatabaseDriver implements QueueDriverInterface
@@ -33,7 +34,7 @@ class DatabaseDriver implements QueueDriverInterface
     /**
      * @return QueueManager
      */
-    public function getQueueManager(): QueueManager
+    public function getQueueManager(): QueueManager|\Illuminate\Queue\QueueManager
     {
         $capsuleQueueManager = new QueueCapsuleManager;
 
@@ -56,6 +57,28 @@ class DatabaseDriver implements QueueDriverInterface
             'after_commit' => false,
         ]);
 
+        $this->getPendingJobs();
+
         return $capsuleQueueManager->getQueueManager();
+    }
+
+    public function getPendingJobs()
+    {
+        $database = ee('queue:DatabaseManager');
+
+        /** @var Collection $jobs */
+        $jobs = $database->getConnection()->table('jobs')->get();
+
+        return [];
+    }
+
+    public function getFailedJobs()
+    {
+        $database = ee('queue:DatabaseManager');
+
+        /** @var Collection $jobs */
+        $jobs = $database->getConnection()->table('failed_jobs')->get();
+
+        return [];
     }
 }
