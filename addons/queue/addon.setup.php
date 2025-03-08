@@ -64,20 +64,24 @@ return [
 
             return $databaseManager;
         },
-        'QueueManager' => function ($provider) {
+        'QueueDriver' => function ($provider) {
             $config = ee()->config->item('queue') ?: [];
             $driver = $config['driver'] ?? 'database';
 
             // @todo this is incomplete and unsupported
             if ($driver === 'sqs') {
-                return (new SQSDriver($provider, $config['sqs_config'] ?? []))->getQueueManager();
+                return new SQSDriver($provider, $config['sqs_config'] ?? []);
             }
 
             if ($driver === 'redis') {
-                return (new RedisDriver($provider, ['default' => $config['redis_config'] ?? []]))->getQueueManager();
+                return new RedisDriver($provider, ['default' => $config['redis_config'] ?? []]);
             }
 
-            return (new DatabaseDriver($provider))->getQueueManager();
+            return new DatabaseDriver($provider);
+        },
+        'QueueManager' => function ($provider) {
+            $queueDriver = $provider->make('QueueDriver');
+            return $queueDriver->getQueueManager();
         },
         'QueueWorker' => function ($provider) {
             /** @var QueueManager $queueManager */
@@ -136,6 +140,7 @@ return [
     ],
     'commands' => [
         'queue:test' => BoldMinded\Queue\Commands\CommandQueueTest::class,
+        'queue:test-large' => BoldMinded\Queue\Commands\CommandQueueTestLarge::class,
         'queue:purge' => BoldMinded\Queue\Commands\CommandQueuePurge::class,
         'queue:consume' => BoldMinded\Queue\Commands\CommandConsumeQueue::class,
     ],

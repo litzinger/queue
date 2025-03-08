@@ -10,7 +10,9 @@ interface QueueDriverInterface
 
     public function getQueueManager();
 
-    public function getPendingJobs();
+    public function getPendingJobs(): array;
 
-    public function getFailedJobs();
+    public function getFailedJobs(): array;
+
+    public function totalFailedJobs(): int;
 }

@@ -62,23 +62,53 @@ class DatabaseDriver implements QueueDriverInterface
         return $capsuleQueueManager->getQueueManager();
     }
 
-    public function getPendingJobs()
+    public function getPendingJobs(): array
     {
         $database = ee('queue:DatabaseManager');
 
         /** @var Collection $jobs */
         $jobs = $database->getConnection()->table('jobs')->get();
 
-        return [];
+        return array_map(function ($job) {
+            return [
+                'id' => $job->id,
+                'queue' => $job->queue,
+                'payload' => $job->payload,
+                'attempts' => $job->attempts,
+                'available_at' => $job->available_at,
+                'created_at' => $job->created_at,
+                'reserved_at' => $job->reserved_at,
+            ];
+        }, $jobs->toArray());
     }
 
-    public function getFailedJobs()
+    public function getFailedJobs(): array
     {
         $database = ee('queue:DatabaseManager');
 
         /** @var Collection $jobs */
         $jobs = $database->getConnection()->table('failed_jobs')->get();
 
-        return [];
+        return array_map(function ($job) {
+            return [
+                'id' => $job->id,
+                'queue' => $job->queue,
+                'payload' => $job->payload,
+                'attempts' => $job->attempts,
+                'available_at' => $job->available_at,
+                'created_at' => $job->created_at,
+                'reserved_at' => $job->reserved_at,
+            ];
+        }, $jobs->toArray());
+    }
+
+    public function totalFailedJobs(): int
+    {
+        $database = ee('queue:DatabaseManager');
+
+        /** @var Collection $jobs */
+        $jobs = $database->getConnection()->table('failed_jobs')->get();
+
+        return count($jobs->toArray());
     }
 }

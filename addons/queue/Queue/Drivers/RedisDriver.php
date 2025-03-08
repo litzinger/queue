@@ -7,6 +7,7 @@ use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\RedisConnector;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
 use BoldMinded\Queue\Dependency\Illuminate\Redis\RedisManager;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\App;
+use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\Redis;
 use ExpressionEngine\Core\Provider;
 
 class RedisDriver implements QueueDriverInterface
@@ -52,5 +53,47 @@ class RedisDriver implements QueueDriverInterface
         ]);
 
         return $capsuleQueueManager->getQueueManager();
+    }
+
+    public function getPendingJobs(): array
+    {
+        // @todo
+        return [];
+
+        return array_map(function ($job) {
+            return [
+                'id' => $job->id,
+                'queue' => $job->queue,
+                'payload' => $job->payload,
+                'attempts' => $job->attempts,
+                'available_at' => $job->available_at,
+                'created_at' => $job->created_at,
+                'reserved_at' => $job->reserved_at,
+            ];
+        }, $jobs->toArray());
+    }
+
+    public function getFailedJobs(): array
+    {
+        // @todo
+        return [];
+
+        return array_map(function ($job) {
+            return [
+                'id' => $job->id,
+                'queue' => $job->queue,
+                'payload' => $job->payload,
+                'attempts' => $job->attempts,
+                'available_at' => $job->available_at,
+                'created_at' => $job->created_at,
+                'reserved_at' => $job->reserved_at,
+            ];
+        }, $jobs->toArray());
+    }
+
+    public function totalFailedJobs(): int
+    {
+        // @todo
+        return 0;
     }
 }
