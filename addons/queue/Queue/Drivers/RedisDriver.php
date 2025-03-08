@@ -55,45 +55,26 @@ class RedisDriver implements QueueDriverInterface
         return $capsuleQueueManager->getQueueManager();
     }
 
-    public function getPendingJobs(): array
+    public function getPendingJobs(string $queueName = 'default'): array
     {
         // @todo
         return [];
-
-        return array_map(function ($job) {
-            return [
-                'id' => $job->id,
-                'queue' => $job->queue,
-                'payload' => $job->payload,
-                'attempts' => $job->attempts,
-                'available_at' => $job->available_at,
-                'created_at' => $job->created_at,
-                'reserved_at' => $job->reserved_at,
-            ];
-        }, $jobs->toArray());
     }
 
-    public function getFailedJobs(): array
+    public function getFailedJobs(string $queueName = 'default'): array
     {
         // @todo
         return [];
-
-        return array_map(function ($job) {
-            return [
-                'id' => $job->id,
-                'queue' => $job->queue,
-                'payload' => $job->payload,
-                'attempts' => $job->attempts,
-                'available_at' => $job->available_at,
-                'created_at' => $job->created_at,
-                'reserved_at' => $job->reserved_at,
-            ];
-        }, $jobs->toArray());
     }
 
-    public function totalFailedJobs(): int
+    public function totalFailedJobs(string $queueName = 'default'): int
     {
         // @todo
         return 0;
+    }
+
+    public function getAllQueues(): array
+    {
+        return array_map(fn($key) => str_replace('queues:', '', $key), Redis::keys('queues:*'));
     }
 }

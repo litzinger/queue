@@ -62,12 +62,15 @@ class DatabaseDriver implements QueueDriverInterface
         return $capsuleQueueManager->getQueueManager();
     }
 
-    public function getPendingJobs(): array
+    public function getPendingJobs(string $queueName = 'default'): array
     {
         $database = ee('queue:DatabaseManager');
 
         /** @var Collection $jobs */
-        $jobs = $database->getConnection()->table('jobs')->get();
+        $jobs = $database->getConnection()
+            ->table('jobs')
+            ->where('queue', $queueName)
+            ->get();
 
         return array_map(function ($job) {
             return [
@@ -82,7 +85,7 @@ class DatabaseDriver implements QueueDriverInterface
         }, $jobs->toArray());
     }
 
-    public function getFailedJobs(): array
+    public function getFailedJobs(string $queueName = 'default'): array
     {
         $database = ee('queue:DatabaseManager');
 
@@ -102,7 +105,7 @@ class DatabaseDriver implements QueueDriverInterface
         }, $jobs->toArray());
     }
 
-    public function totalFailedJobs(): int
+    public function totalFailedJobs(string $queueName = 'default'): int
     {
         $database = ee('queue:DatabaseManager');
 
@@ -110,5 +113,15 @@ class DatabaseDriver implements QueueDriverInterface
         $jobs = $database->getConnection()->table('failed_jobs')->get();
 
         return count($jobs->toArray());
+    }
+
+    public function getAllQueues(): array
+    {
+        $database = ee('queue:DatabaseManager');
+
+        return $database->getConnection()->table('jobs')
+            ->distinct()
+            ->pluck('queue')
+            ->toArray();
     }
 }

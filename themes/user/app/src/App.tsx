@@ -52,12 +52,22 @@ function App() {
               <h2>Items in queue: {queueStatus.size}</h2>
           </div>
           <div className="panel-body">
-              <ul>
+              <ul className="list-group list-group--nested">
               {queueStatus.pending.map((job: Job) => {
                   const payload = JSON.parse(job.payload);
+                  // console.log(payload);
 
                   return (
-                      <li>{job.id}: {payload.displayName}</li>
+                      <li>
+                          <div className="list-item">
+                              <div className="list-item__content">
+                                  <div className="list-item__title">
+                                      {payload.data}
+                                  </div>
+                                <div className="list-item__secondary">{payload.uuid} {payload.displayName}</div>
+                              </div>
+                          </div>
+                      </li>
                   )
               })}
               </ul>
