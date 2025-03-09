@@ -17,17 +17,19 @@ class FetchQueueStatus extends Action
         $queues = [];
 
         foreach ($queueDriver->getAllQueues() as $queue) {
-            $queues[$queue] = [
-                'pending' => $this->paginate($queueDriver->getPendingJobs($queue)),
-                'failed' => $this->paginate($queueDriver->getFailedJobs($queue)),
+            $pendingJobs = $queueDriver->getPendingJobs($queue);
+            $failedJobs = $queueDriver->getFailedJobs($queue);
+
+            $queues[] = [
+                'queueName' => $queue,
+                'pendingCount' => count($pendingJobs),
+                'pending' => $this->paginate($pendingJobs),
+                'failedCount' => count($failedJobs),
+                'failed' => $this->paginate($failedJobs),
             ];
         }
 
-        $this->sendJsonResponse([
-            'size' => $queueStatus->getSize(),
-            'pending' => array_slice($queueDriver->getPendingJobs(), 0, 100),
-            'failed' => array_slice($queueDriver->getFailedJobs(), 0, 100),
-        ]);
+        $this->sendJsonResponse($queues);
     }
 
     private function paginate(array $jobs = []): array

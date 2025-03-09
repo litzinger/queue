@@ -12,28 +12,26 @@ type Job = {
     created_at: number;
 };
 
-// type Jobs = Job[];
+type Queue = {
+    queueName: string;
+    pendingCount: number
+    pending: Array<Job>;
+    failedCount: number;
+    failed: Array<Job>;
+};
+
+type QueueStatusResponse = Array<Queue>;
 
 function App() {
-    const [queueStatus, setQueueStatus] = useState({
-        size: 0,
-        pending: [],
-        failed: []
-    });
+    const [queueStatus, setQueueStatus] = useState<QueueStatusResponse>([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await fetch(config.urlQueueStatus, { cache: 'no-store' });
-                const result = await response.json();
+                const result: QueueStatusResponse = await response.json();
 
-                console.log(result);
-
-                setQueueStatus({
-                    'size': result.size,
-                    'pending': result.pending,
-                    'failed': result.failed,
-                });
+                setQueueStatus(result);
             } catch (error) {
                 console.error('Error fetching queue status:', error);
             }
@@ -49,28 +47,37 @@ function App() {
   return (
       <div className="panel">
           <div className="panel-heading">
-              <h2>Items in queue: {queueStatus.size}</h2>
+              <h2>Current Workload</h2>
           </div>
-          <div className="panel-body">
-              <ul className="list-group list-group--nested">
-              {queueStatus.pending.map((job: Job) => {
-                  const payload = JSON.parse(job.payload);
-                  // console.log(payload);
-
-                  return (
-                      <li>
-                          <div className="list-item">
-                              <div className="list-item__content">
-                                  <div className="list-item__title">
-                                      {payload.data}
-                                  </div>
-                                <div className="list-item__secondary">{payload.uuid} {payload.displayName}</div>
-                              </div>
-                          </div>
-                      </li>
-                  )
-              })}
-              </ul>
+          <div className="panel-body panel-body__table">
+              <div className="table-responsive table-responsive--collapsible">
+                  <table>
+                      <thead>
+                      <tr className="app-listing__row app-listing__row--head">
+                          <th>
+                              Queue
+                          </th>
+                          <th>
+                              Jobs
+                          </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                          {queueStatus.map((queue: Queue) => {
+                              return (
+                                  <tr className="app-listing__row">
+                                      <td>
+                                          {queue.queueName}
+                                      </td>
+                                      <td>
+                                          {queue.pendingCount || 0}
+                                      </td>
+                                  </tr>
+                              )
+                          })}
+                      </tbody>
+                  </table>
+              </div>
           </div>
       </div>
   );
