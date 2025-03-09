@@ -21,6 +21,20 @@
 */2 * * * * php /var/www/mysite.com/system/ee/eecli.php queue:consume --limit=10
     </code></pre>
 
+        <p>You can also use a bash script that executes the consumer every second.</p>
+        <pre><code style="white-space: pre-line">
+#!/bin/bash
+while true; do
+    php /var/www/html/system/ee/eecli.php queue:consume --limit=3
+    sleep 1
+done
+            </code></pre>
+
+        <p>You will need to use `nohup` to run the bash script:</p>
+        <pre><code>
+            nohup bash path/to/loop.sh &
+        </code></pre>
+
         <h3>Config overrides</h3>
         <p>Add some or all of the following to your config.php file to modify the default queue settings.</p>
         <pre>
