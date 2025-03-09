@@ -97,10 +97,8 @@ class DatabaseDriver implements QueueDriverInterface
                 'id' => $job->id,
                 'queue' => $job->queue,
                 'payload' => $job->payload,
-                'attempts' => $job->attempts,
-                'available_at' => $job->available_at,
-                'created_at' => $job->created_at,
-                'reserved_at' => $job->reserved_at,
+                'exception' => $job->exception,
+                'failed_at' => $job->failed_at,
             ];
         }, $jobs->toArray());
     }

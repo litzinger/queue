@@ -9,8 +9,6 @@ class FetchQueueStatus extends Action
 {
     public function process()
     {
-        /** @var QueueStatus $queueStatus */
-        $queueStatus = ee('queue:QueueStatus');
         /** @var QueueDriverInterface $queueManager */
         $queueDriver = ee('queue:QueueDriver');
 

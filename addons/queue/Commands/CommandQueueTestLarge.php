@@ -2,6 +2,7 @@
 
 namespace BoldMinded\Queue\Commands;
 
+use BoldMinded\Queue\Queue\Jobs\TestFailedJob;
 use BoldMinded\Queue\Queue\Jobs\TestJob;
 use ExpressionEngine\Cli\Cli;
 use ExpressionEngine\Cli\Exception;
@@ -55,10 +56,16 @@ class CommandQueueTestLarge extends Cli
         try {
             $i = 1;
             $this->info('Adding 5000 jobs to the queue...');
-            while ($i < 5000) {
-                ee('queue:QueueManager')->push(TestJob::class, rand(0, PHP_INT_MAX));
+
+            while ($i < 10) {
+                ee('queue:QueueManager')->push(TestFailedJob::class, rand(0, PHP_INT_MAX));
                 $i++;
             }
+
+//            while ($i < 5000) {
+//                ee('queue:QueueManager')->push(TestJob::class, rand(0, PHP_INT_MAX));
+//                $i++;
+//            }
 
             $this->info('Checking queue size...');
 
