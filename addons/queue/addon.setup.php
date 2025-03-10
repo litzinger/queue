@@ -86,8 +86,9 @@ return [
         'QueueWorker' => function ($provider) {
             /** @var QueueManager $queueManager */
             $queueManager = $provider->make('QueueManager');
+            $container = $queueManager->getContainer();
 
-            $dispatcher = new Dispatcher($queueManager->getContainer());
+            $dispatcher = new Dispatcher($container);
             $dispatcher->subscribe(new QueueSubscriber);
 
             return new Worker(
@@ -141,6 +142,7 @@ return [
     'commands' => [
         'queue:test' => BoldMinded\Queue\Commands\CommandQueueTest::class,
         'queue:test-large' => BoldMinded\Queue\Commands\CommandQueueTestLarge::class,
+        'queue:test-fail' => BoldMinded\Queue\Commands\CommandQueueTestFail::class,
         'queue:purge' => BoldMinded\Queue\Commands\CommandQueuePurge::class,
         'queue:consume' => BoldMinded\Queue\Commands\CommandConsumeQueue::class,
     ],

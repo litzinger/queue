@@ -2,6 +2,7 @@
 
 namespace BoldMinded\Queue\Queue\Drivers;
 
+use BoldMinded\Queue\Dependency\Illuminate\Container\Container;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Database\ConnectionResolver;
 use BoldMinded\Queue\Dependency\Illuminate\Database\DatabaseManager;
@@ -57,7 +58,24 @@ class DatabaseDriver implements QueueDriverInterface
             'after_commit' => false,
         ]);
 
-        $this->getPendingJobs();
+        $capsuleQueueManager->getContainer()['config']['queue.failed.driver'] = 'database';
+        $capsuleQueueManager->getContainer()['config']['queue.failed.database'] = 'default';
+        $capsuleQueueManager->getContainer()['config']['queue.failed.table'] = 'failed_jobs';
+
+        $capsuleQueueManager->getContainer()['db'] = $database;
+
+//        $capsuleQueueManager->getContainer()->instance('database', $database);
+//
+//        $container->singleton('queue.failer', function () use ($capsuleQueueManager) {
+//            return new DatabaseFailedJobProvider(
+//                $capsuleQueueManager->getConnection(),
+//                'failed_jobs'
+//            );
+//        });
+
+        $capsuleQueueManager->setAsGlobal();
+
+//        $capsuleQueueManager->getQueueManager()->setFailer($container->make('queue.failer'));
 
         return $capsuleQueueManager->getQueueManager();
     }

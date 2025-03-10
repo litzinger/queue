@@ -2,23 +2,23 @@
 
 namespace BoldMinded\Queue\Commands;
 
-use BoldMinded\Queue\Queue\Jobs\TestJob;
+use BoldMinded\Queue\Queue\Jobs\TestFailedJob;
 use ExpressionEngine\Cli\Cli;
 use ExpressionEngine\Cli\Exception;
 
-class CommandQueueTestLarge extends Cli
+class CommandQueueTestFail extends Cli
 {
     /**
      * name of command
      * @var string
      */
-    public $name = 'QueueTestLarge';
+    public $name = 'QueueTestFail';
 
     /**
      * signature of command
      * @var string
      */
-    public $signature = 'queue:test-large';
+    public $signature = 'queue:test-fail';
 
     /**
      * Public description of command
@@ -36,7 +36,7 @@ class CommandQueueTestLarge extends Cli
      * How to use command
      * @var string
      */
-    public $usage = 'php eecli.php queue:test-large';
+    public $usage = 'php eecli.php queue:test-faile';
 
     /**
      * options available for use in command
@@ -54,25 +54,9 @@ class CommandQueueTestLarge extends Cli
     {
         try {
             $i = 1;
-            $this->info('Adding 5000 jobs to the queue...');
+            $this->info('Adding 1 job that will fail to the queue...');
 
-            while ($i < 5000) {
-                ee('queue:QueueManager')->push(TestJob::class, rand(0, PHP_INT_MAX));
-                $i++;
-            }
-
-            $this->info('Checking queue size...');
-
-            $queueStatus = ee('queue:QueueStatus');
-            $this->info(sprintf('%d jobs found in the queue', $queueStatus->getSize()));
-
-            $this->info('Running consumer...');
-
-            $queueWorkerOptions = ee('queue:QueueWorkerOptions');
-            $queueWorkerOptions->maxJobs = 5;
-
-            $queueWorker = ee('queue:QueueWorker');
-            $queueWorker->daemon('default', 'default', $queueWorkerOptions);
+            ee('queue:QueueManager')->push(TestFailedJob::class, rand(0, PHP_INT_MAX));
         } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
