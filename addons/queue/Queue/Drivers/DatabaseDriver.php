@@ -7,6 +7,7 @@ use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsule
 use BoldMinded\Queue\Dependency\Illuminate\Database\ConnectionResolver;
 use BoldMinded\Queue\Dependency\Illuminate\Database\DatabaseManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\DatabaseConnector;
+use BoldMinded\Queue\Dependency\Illuminate\Queue\Failed\DatabaseFailedJobProvider;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Collection;
 use ExpressionEngine\Core\Provider;
@@ -38,17 +39,20 @@ class DatabaseDriver implements QueueDriverInterface
     public function getQueueManager(): QueueManager|\Illuminate\Queue\QueueManager
     {
         $capsuleQueueManager = new QueueCapsuleManager;
+        $container = $capsuleQueueManager->getContainer();
 
         /** @var DatabaseManager $database */
         $database = $this->provider->make('DatabaseManager');
 
-        $capsuleQueueManager->addConnector('database', function () use ($database) {
-            $connection = $database->getConnection();
-            $connectionResolver = new ConnectionResolver(['default' => $connection]);
-            $connectionResolver->setDefaultConnection('default');
+        $connection = $database->getConnection();
+        $connectionResolver = new ConnectionResolver(['default' => $connection]);
+        $connectionResolver->setDefaultConnection('default');
 
+        $capsuleQueueManager->addConnector('database', function () use ($connectionResolver) {
             return new DatabaseConnector($connectionResolver);
         });
+
+        $capsuleQueueManager->setAsGlobal();
 
         $capsuleQueueManager->addConnection([
             'driver' => 'database',
@@ -58,24 +62,16 @@ class DatabaseDriver implements QueueDriverInterface
             'after_commit' => false,
         ]);
 
-        $capsuleQueueManager->getContainer()['config']['queue.failed.driver'] = 'database';
-        $capsuleQueueManager->getContainer()['config']['queue.failed.database'] = 'default';
-        $capsuleQueueManager->getContainer()['config']['queue.failed.table'] = 'failed_jobs';
+        $container['config']['queue.failed.driver'] = 'database';
+        $container['config']['queue.failed.database'] = 'default';
+        $container['config']['queue.failed.table'] = 'failed_jobs';
+        $container['db'] = $database;
 
-        $capsuleQueueManager->getContainer()['db'] = $database;
-
-//        $capsuleQueueManager->getContainer()->instance('database', $database);
-//
-//        $container->singleton('queue.failer', function () use ($capsuleQueueManager) {
-//            return new DatabaseFailedJobProvider(
-//                $capsuleQueueManager->getConnection(),
-//                'failed_jobs'
-//            );
-//        });
-
-        $capsuleQueueManager->setAsGlobal();
-
-//        $capsuleQueueManager->getQueueManager()->setFailer($container->make('queue.failer'));
+        $container['queue.failer'] = new DatabaseFailedJobProvider(
+            $connectionResolver,
+            'default',
+            'failed_jobs'
+        );
 
         return $capsuleQueueManager->getQueueManager();
     }

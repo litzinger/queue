@@ -3,7 +3,9 @@
 // Build: {QUEUE_BUILD_VERSION}
 require_once PATH_THIRD . 'queue/vendor-build/autoload.php';
 
+use BoldMinded\Queue\Dependency\Illuminate\Container\Container;
 use BoldMinded\Queue\Dependency\Illuminate\Events\Dispatcher;
+use BoldMinded\Queue\Dependency\Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Worker;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\WorkerOptions;
 use BoldMinded\Queue\Dependency\Illuminate\Database\Capsule\Manager as DatabaseCapsuleManager;
@@ -86,12 +88,21 @@ return [
         'QueueWorker' => function ($provider) {
             /** @var QueueManager $queueManager */
             $queueManager = $provider->make('QueueManager');
+            /** @var Container $container */
             $container = $queueManager->getContainer();
 
             $dispatcher = new Dispatcher($container);
+
+            $queueManager->getApplication()->bind(
+                DispatcherContract::class,
+                function () use ($dispatcher) {
+                    return $dispatcher;
+                }
+            );
+
             $dispatcher->subscribe(new QueueSubscriber);
 
-            return new Worker(
+            $worker = new Worker(
                 $queueManager,
                 $dispatcher,
                 new QueueException,
@@ -100,6 +111,8 @@ return [
                 function () {
                 }
             );
+
+            return $worker;
         },
         'QueueWorkerOptions' => function () {
             // Determine how long a worker can run without timing out based on the PHP settings.
@@ -117,8 +130,8 @@ return [
                 backoff: $config['backoff'] ?? 0,
                 memory: $config['memory'] ?? 1024,
                 timeout: $config['timeout'] ?? $maxExecutionTime,
-                sleep: $config['sleep'] ?? 3,
-                maxTries: $config['max_tries'] ?? 3,
+                sleep: $config['sleep'] ?? 0,
+                maxTries: $config['max_tries'] ?? 1,
                 force: $config['force'] ?? false,
                 stopWhenEmpty: $config['stop_when_empty'] ?? true,
                 maxJobs: $config['max_jobs'] ?? 1,
