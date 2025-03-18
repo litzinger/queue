@@ -12,8 +12,6 @@ class TestFailedJob extends AbstractJob implements ShouldQueue, ShouldBeUnique
     public function fire(Job $job, string|array $payload): bool
     {
         throw new Exception('Marking job as failed intentionally.');
-
-        return false;
     }
 
     public function failed($payloadData, $exception, $uuid): bool

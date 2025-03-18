@@ -12,7 +12,7 @@ class JobRetryRequestedListener extends AbstractListener
 
         if (get_bool_from_string($config['enable_detailed_logging'])) {
             ee('queue:Logger')->developer(sprintf(
-                '[Queue] job retried with %s',
+                '[Queue] job retried with: %s',
                 json_encode($event->job->job->payload())
             ));
         }

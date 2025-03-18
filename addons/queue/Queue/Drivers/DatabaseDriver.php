@@ -2,7 +2,6 @@
 
 namespace BoldMinded\Queue\Queue\Drivers;
 
-use BoldMinded\Queue\Dependency\Illuminate\Container\Container;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Database\ConnectionResolver;
 use BoldMinded\Queue\Dependency\Illuminate\Database\DatabaseManager;
@@ -60,6 +59,11 @@ class DatabaseDriver implements QueueDriverInterface
             'queue' => 'default',
             'retry_after' => 60 * 5,
             'after_commit' => false,
+//            'failed' => [
+//                'driver' => 'database',
+//                'database' => 'default',
+//                'table' => 'failed_jobs',
+//            ],
         ]);
 
         $container['config']['queue.failed.driver'] = 'database';

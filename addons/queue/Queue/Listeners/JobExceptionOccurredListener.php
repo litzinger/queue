@@ -9,7 +9,7 @@ class JobExceptionOccurredListener extends AbstractListener
     public function handle(JobExceptionOccurred $event)
     {
         ee('queue:Logger')->developer(sprintf(
-            '[Queue] Exception Occurred %s',
+            '[Queue] Exception Occurred: %s',
             $event->exception->getMessage()
         ));
     }

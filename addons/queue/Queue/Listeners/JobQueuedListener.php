@@ -12,7 +12,7 @@ class JobQueuedListener extends AbstractListener
 
         if (get_bool_from_string($config['enable_detailed_logging'])) {
             ee('queue:Logger')->developer(sprintf(
-                '[Queue] job queued with %s',
+                '[Queue] job queued with: %s',
                 json_encode($event->job->payload())
             ));
         }
