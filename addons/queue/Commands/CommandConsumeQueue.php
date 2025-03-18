@@ -4,6 +4,8 @@ namespace BoldMinded\Queue\Commands;
 
 use ExpressionEngine\Cli\Cli;
 use ExpressionEngine\Cli\Exception;
+use BoldMinded\Queue\Dependency\Illuminate\Queue\Events;
+use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Job;
 
 class CommandConsumeQueue extends Cli
 {
@@ -47,11 +49,24 @@ class CommandConsumeQueue extends Cli
     ];
 
     /**
+     * Indicates if the worker's event listeners have been registered.
+     *
+     * @var bool
+     */
+    private static $hasRegisteredListeners = \false;
+
+    private $container;
+
+    /**
      * Run the command
      * @return mixed
      */
     public function handle()
     {
+        $this->container = ee('queue:QueueManager')->getContainer();
+
+        $this->listenForEvents();
+
         try {
             $queueName = $this->option('--queue_name') ?? 'default';
             $limit = $this->option('--limit') ?? 1;
@@ -68,4 +83,30 @@ class CommandConsumeQueue extends Cli
             $this->error($exception->getMessage());
         }
     }
+
+    protected function listenForEvents()
+    {
+        if (static::$hasRegisteredListeners) {
+            return;
+        }
+        $this->container['events']->listen(Events\JobProcessing::class, function ($event) {
+            $this->writeOutput($event->job, 'starting');
+        });
+        $this->container['events']->listen(Events\JobProcessed::class, function ($event) {
+            $this->writeOutput($event->job, 'success');
+        });
+        $this->container['events']->listen(Events\JobReleasedAfterException::class, function ($event) {
+            $this->writeOutput($event->job, 'released_after_exception');
+        });
+        $this->container['events']->listen(Events\JobFailed::class, function ($event) {
+            $this->writeOutput($event->job, 'failed', $event->exception);
+        });
+        static::$hasRegisteredListeners = \true;
+    }
+
+    protected function writeOutput(Job $job, $status)
+    {
+        $this->info("{$job->resolveName()}<#{$job->getJobId()}> - {$status}");
+    }
+
 }
