@@ -13,5 +13,13 @@ class JobFailedListener extends AbstractListener
             '[Queue] Job Failed %s',
             $event->exception->getMessage()
         ));
+
+        $container = ee('queue:QueueManager')->getContainer();
+        $container['queue.failer']->log(
+            $event->connectionName,
+            $event->job->getQueue(),
+            $event->job->getRawBody(),
+            $event->exception
+        );
     }
 }

@@ -8,6 +8,7 @@ use BoldMinded\Queue\Dependency\Illuminate\Events\Dispatcher;
 use BoldMinded\Queue\Dependency\Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Worker;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\WorkerOptions;
+use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Factory as QueueFactoryContract;
 use BoldMinded\Queue\Dependency\Illuminate\Database\Capsule\Manager as DatabaseCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
 use BoldMinded\Queue\Dependency\Litzinger\Basee\Logger;
@@ -64,6 +65,8 @@ return [
             $databaseManager = new DatabaseCapsuleManager;
             $databaseManager->addConnection($provider->make('DatabaseConfig'));
 
+            $databaseManager->setAsGlobal();
+
             return $databaseManager;
         },
         'QueueDriver' => function ($provider) {
@@ -83,7 +86,23 @@ return [
         },
         'QueueManager' => function ($provider) {
             $queueDriver = $provider->make('QueueDriver');
-            return $queueDriver->getQueueManager();
+            $manager = $queueDriver->getQueueManager();
+            $container = $manager->getContainer();
+
+            $dispatcher = (new Dispatcher($container))->setQueueResolver(function () use ($container) {
+                return $container->make(QueueFactoryContract::class);
+            });
+
+            $container['events'] = $dispatcher;
+
+            $manager->getApplication()->singleton(
+                DispatcherContract::class,
+                function () use ($dispatcher) {
+                    return $dispatcher;
+                }
+            );
+
+            return $manager;
         },
         'QueueWorker' => function ($provider) {
             /** @var QueueManager $queueManager */
@@ -91,25 +110,14 @@ return [
             /** @var Container $container */
             $container = $queueManager->getContainer();
 
-            $dispatcher = new Dispatcher($container);
-
-            $queueManager->getApplication()->bind(
-                DispatcherContract::class,
-                function () use ($dispatcher) {
-                    return $dispatcher;
-                }
-            );
-
-            $dispatcher->subscribe(new QueueSubscriber);
+            $container['events']->subscribe(new QueueSubscriber);
 
             $worker = new Worker(
                 $queueManager,
-                $dispatcher,
+                $container['events'],
                 new QueueException,
-                function () {
-                },
-                function () {
-                }
+                function () {},
+                function () {}
             );
 
             return $worker;

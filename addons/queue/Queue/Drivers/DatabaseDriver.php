@@ -7,7 +7,7 @@ use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsule
 use BoldMinded\Queue\Dependency\Illuminate\Database\ConnectionResolver;
 use BoldMinded\Queue\Dependency\Illuminate\Database\DatabaseManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\DatabaseConnector;
-use BoldMinded\Queue\Dependency\Illuminate\Queue\Failed\DatabaseFailedJobProvider;
+use BoldMinded\Queue\Dependency\Illuminate\Queue\Failed\DatabaseUuidFailedJobProvider;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Collection;
 use ExpressionEngine\Core\Provider;
@@ -67,7 +67,7 @@ class DatabaseDriver implements QueueDriverInterface
         $container['config']['queue.failed.table'] = 'failed_jobs';
         $container['db'] = $database;
 
-        $container['queue.failer'] = new DatabaseFailedJobProvider(
+        $container['queue.failer'] = new DatabaseUuidFailedJobProvider(
             $connectionResolver,
             'default',
             'failed_jobs'
