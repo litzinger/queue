@@ -14,7 +14,11 @@ interface QueueDriverInterface
 
     public function getFailedJobs(string $queueName): array;
 
-    public function totalFailedJobs(string $queueName): int;
+    public function getAllPendingQueues(): array;
 
-    public function getAllQueues(): array;
+    public function getAllFailedQueues(): array;
+
+    public function getFailedJobByUUID(string $jobId): array|null;
+
+    public function deleteFailedJobByUUID(string $jobId): bool;
 }

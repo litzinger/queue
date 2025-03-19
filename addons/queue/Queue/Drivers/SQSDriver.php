@@ -9,15 +9,9 @@ use ExpressionEngine\Core\Provider;
 
 class SQSDriver implements QueueDriverInterface
 {
-    /**
-     * @var array
-     */
-    private $config = [];
+    private array $config = [];
 
-    /**
-     * @var Provider
-     */
-    private $provider;
+    private Provider $provider;
 
     /**
      * @param Provider $provider

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import './App.css'
 import config from './Config.ts'
+import Loading from "./loading.tsx";
 
 type PendingJob = {
     id: string;
@@ -14,24 +15,35 @@ type PendingJob = {
 
 type FailedJob = {
     id: string;
+    uuid: string;
     queue: string;
     payload: string;
     exception: string;
     failed_at: number;
 };
 
-type Queue = {
+type PendingQueue = {
     queueName: string;
-    pendingCount: number
-    pending: Array<PendingJob>;
-    failedCount: number;
-    failed: Array<FailedJob>;
+    count: number;
+    jobs: Array<PendingJob>;
 };
 
-type QueueStatusResponse = Array<Queue>;
+type FailedQueue = {
+    queueName: string;
+    count: number;
+    jobs: Array<FailedJob>;
+}
+
+type QueueStatusResponse = {
+    pending: Array<PendingQueue>;
+    failed: Array<FailedQueue>;
+};
 
 function App() {
-    const [queueStatus, setQueueStatus] = useState<QueueStatusResponse>([]);
+    const [queueStatus, setQueueStatus] = useState<QueueStatusResponse>({
+        pending: [],
+        failed: [],
+    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -52,14 +64,68 @@ function App() {
         return () => clearInterval(interval);
     }, []);
 
-    const hasFailedJobs: boolean = queueStatus.filter((queue: Queue) => {
-        return queue.failedCount > 0;
+    const hasPendingJobs: boolean = queueStatus.pending.filter((queue: PendingQueue) => {
+        return queue.count > 0;
     }).length > 0;
 
-    const retryJob = function () {}
+    const hasFailedJobs: boolean = queueStatus.failed.filter((queue: FailedQueue) => {
+        return queue.count > 0;
+    }).length > 0;
+
+    const retryFailedJob = async (jobId: string) => {
+        const requestConfig = {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Http-X-Requested-With': 'XMLHttpRequest',
+            },
+            body: new URLSearchParams({
+                'csrf_token': config.csrfToken,
+                'jobId': jobId,
+            }),
+        };
+
+        return await fetch(config.urlRetryFailedJob, requestConfig)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    return result;
+                },
+                (error) => {
+                    console.log(error);
+                }
+            );
+    };
+
+    const purgeAllPendingJobs = async (queueName: string) => {
+        const requestConfig = {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Http-X-Requested-With': 'XMLHttpRequest',
+            },
+            body: new URLSearchParams({
+                'csrf_token': config.csrfToken,
+                'queueName': queueName,
+            }),
+        };
+
+        return await fetch(config.urlPurgeAllPendingJobs, requestConfig)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    return result;
+                },
+                (error) => {
+                    console.log(error);
+                }
+            );
+    };
 
     return (
-        <>
+        <Suspense fallback={<Loading />}>
             <div className="panel">
                 <div className="panel-heading">
                     <h2>Current Workload</h2>
@@ -75,29 +141,55 @@ function App() {
                                 <th>
                                     Jobs
                                 </th>
+                                <th className="text-right">
+                                    Actions
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
-                            {queueStatus.length > 0 ? (
-                                queueStatus.map((queue: Queue) => {
+                            {hasPendingJobs ? (
+                                queueStatus.pending.map((queue: PendingQueue) => {
                                     return (
-                                        <tr className="app-listing__row">
-                                            <td>
-                                                {queue.queueName}
-                                            </td>
-                                            <td>
-                                                {queue.pendingCount || 0}
-                                            </td>
-                                        </tr>
+                                        <>
+                                            <tr className="app-listing__row" key={queue.queueName}>
+                                                <td>
+                                                    {queue.queueName}
+                                                </td>
+                                                <td>
+                                                    {queue.count || 0}
+                                                </td>
+                                                <td className="text-right">
+                                                    <div className="button-group button-group-xsmall inline-block">
+                                                        <button
+                                                            onClick={() => purgeAllPendingJobs(queue.queueName)}
+                                                            className="button button--default fas fa-trash"
+                                                        >
+                                                            <span className="hidden">Purge all jobs in {queue.queueName}</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {/*{queue.jobs.map((job: PendingJob) => {*/}
+                                            {/*    const payload = JSON.parse(job.payload);*/}
+
+                                            {/*    return (*/}
+                                            {/*        <tr className="app-listing__row" key={job.id}>*/}
+                                            {/*            <td colSpan={2}>*/}
+                                            {/*                {payload.displayName ?? 'n/a'}*/}
+                                            {/*            </td>*/}
+                                            {/*            <td>*/}
+                                            {/*                Created:*/}
+                                            {/*            </td>*/}
+                                            {/*        </tr>*/}
+                                            {/*    );*/}
+                                            {/*})}*/}
+                                        </>
                                     )
                                 })
                             ) : (
                                 <tr className="app-listing__row">
-                                    <td>
-                                        default
-                                    </td>
-                                    <td>
-                                        0
+                                    <td colSpan={3}>
+                                        No jobs found.
                                     </td>
                                 </tr>
                             )}
@@ -131,35 +223,43 @@ function App() {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {queueStatus.length > 0 && (
-                                    queueStatus.map((queue: Queue) => {
-                                        return queue.failed.map((failed: FailedJob) => {
+                                    {queueStatus.failed.map((queue: FailedQueue) => {
+                                        return queue.jobs.map((failed: FailedJob) => {
+                                            const payload = JSON.parse(failed.payload);
+
                                             return (
-                                                <tr className="app-listing__row">
-                                                    <td>
+                                                <tr className="app-listing__row" key={failed.uuid}>
+                                                    <td className="w-full">
                                                         {failed.queue}
                                                     </td>
-                                                    <td>
+                                                    <td className="w-full">
                                                         {failed.failed_at || 0}
                                                     </td>
                                                     <td>
-                                                        {failed.exception}
+                                                        {payload.displayName ?? ''}:
+                                                        <code>{failed.exception}</code>
                                                     </td>
                                                     <td>
-                                                        <a onClick={retryJob}>Retry</a>
+                                                        <div className="button-group button-group-xsmall">
+                                                            <button
+                                                                onClick={() => retryFailedJob(failed.uuid)}
+                                                                className="button button--default fas fa-recycle"
+                                                            >
+                                                                <span className="hidden">Retry Job</span>
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             )
                                         })
-                                    })
-                                )}
+                                    })}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             )}
-        </>
+        </Suspense>
     );
 }
 

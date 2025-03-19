@@ -64,7 +64,6 @@ return [
         'DatabaseManager' => function ($provider) {
             $databaseManager = new DatabaseCapsuleManager;
             $databaseManager->addConnection($provider->make('DatabaseConfig'));
-
             $databaseManager->setAsGlobal();
 
             return $databaseManager;

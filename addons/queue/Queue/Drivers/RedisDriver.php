@@ -12,15 +12,9 @@ use ExpressionEngine\Core\Provider;
 
 class RedisDriver implements QueueDriverInterface
 {
-    /**
-     * @var array
-     */
-    private $config = [];
+    private array $config = [];
 
-    /**
-     * @var Provider
-     */
-    private $provider;
+    private Provider $provider;
 
     /**
      * @param Provider $provider
@@ -57,7 +51,6 @@ class RedisDriver implements QueueDriverInterface
 
     public function getPendingJobs(string $queueName = 'default'): array
     {
-        // @todo
         return [];
     }
 
@@ -67,14 +60,33 @@ class RedisDriver implements QueueDriverInterface
         return [];
     }
 
-    public function totalFailedJobs(string $queueName = 'default'): int
+    public function getFailedJobByUUID(string $jobId): array|null
     {
-        // @todo
-        return 0;
+        return null;
+    }
+
+    public function deleteFailedJobByUUID(string $jobId): bool
+    {
+        return false;
+    }
+
+    public function getAllPendingQueues(): array
+    {
+        return $this->getAllQueues();
+    }
+
+    public function getAllFailedQueues(): array
+    {
+        return $this->getAllQueues();
     }
 
     public function getAllQueues(): array
     {
-        return array_map(fn($key) => str_replace('queues:', '', $key), Redis::keys('queues:*'));
+        return array_map(fn($key) => str_replace('queues:', '', $key), $this->getConnection()->keys('queues:*'));
+    }
+
+    private function getConnection()
+    {
+        return $this->getQueueManager()->getConnection('default');
     }
 }

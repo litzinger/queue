@@ -2,7 +2,7 @@
 
 use ExpressionEngine\Service\Migration\Migration;
 
-class Createactionpurgequeueforaddonqueue extends Migration
+class Createactionpurgeallpendingjobsforaddonqueue extends Migration
 {
     /**
      * Execute the migration
@@ -12,7 +12,7 @@ class Createactionpurgequeueforaddonqueue extends Migration
     {
         ee('Model')->make('Action', [
             'class' => 'Queue',
-            'method' => 'PurgeQueue',
+            'method' => 'purgeAllPendingJobs',
             'csrf_exempt' => false,
         ])->save();
     }
@@ -25,7 +25,7 @@ class Createactionpurgequeueforaddonqueue extends Migration
     {
         ee('Model')->get('Action')
             ->filter('class', 'Queue')
-            ->filter('method', 'PurgeQueue')
+            ->filter('method', 'purgeAllPendingJobs')
             ->delete();
     }
 }

@@ -13,15 +13,9 @@ use ExpressionEngine\Core\Provider;
 
 class DatabaseDriver implements QueueDriverInterface
 {
-    /**
-     * @var array
-     */
-    private $config = [];
+    private array $config = [];
 
-    /**
-     * @var Provider
-     */
-    private $provider;
+    private Provider $provider;
 
     /**
      * @param Provider $provider
@@ -59,11 +53,6 @@ class DatabaseDriver implements QueueDriverInterface
             'queue' => 'default',
             'retry_after' => 60 * 5,
             'after_commit' => false,
-//            'failed' => [
-//                'driver' => 'database',
-//                'database' => 'default',
-//                'table' => 'failed_jobs',
-//            ],
         ]);
 
         $container['config']['queue.failed.driver'] = 'database';
@@ -108,11 +97,15 @@ class DatabaseDriver implements QueueDriverInterface
         $database = ee('queue:DatabaseManager');
 
         /** @var Collection $jobs */
-        $jobs = $database->getConnection()->table('failed_jobs')->get();
+        $jobs = $database->getConnection()
+            ->table('failed_jobs')
+            ->where('queue', $queueName)
+            ->get();
 
         return array_map(function ($job) {
             return [
                 'id' => $job->id,
+                'uuid' => $job->uuid,
                 'queue' => $job->queue,
                 'payload' => $job->payload,
                 'exception' => $job->exception,
@@ -121,21 +114,47 @@ class DatabaseDriver implements QueueDriverInterface
         }, $jobs->toArray());
     }
 
-    public function totalFailedJobs(string $queueName = 'default'): int
+    public function getFailedJobByUUID(string $jobId): array|null
     {
         $database = ee('queue:DatabaseManager');
 
-        /** @var Collection $jobs */
-        $jobs = $database->getConnection()->table('failed_jobs')->get();
+        $job = $database->getConnection()
+            ->table('failed_jobs')
+            ->where('uuid', $jobId)
+            ->first();
 
-        return count($jobs->toArray());
+        if ($job) {
+            return (array) $job;
+        }
+
+        return null;
     }
 
-    public function getAllQueues(): array
+    public function deleteFailedJobByUUID(string $jobId): bool
+    {
+        $database = ee('queue:DatabaseManager');
+
+        return $database->getConnection()
+            ->table('failed_jobs')
+            ->where('uuid', $jobId)
+            ->delete();
+    }
+
+    public function getAllPendingQueues(): array
     {
         $database = ee('queue:DatabaseManager');
 
         return $database->getConnection()->table('jobs')
+            ->distinct()
+            ->pluck('queue')
+            ->toArray();
+    }
+
+    public function getAllFailedQueues(): array
+    {
+        $database = ee('queue:DatabaseManager');
+
+        return $database->getConnection()->table('failed_jobs')
             ->distinct()
             ->pluck('queue')
             ->toArray();

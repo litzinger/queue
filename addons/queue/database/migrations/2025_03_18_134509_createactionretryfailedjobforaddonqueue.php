@@ -2,7 +2,7 @@
 
 use ExpressionEngine\Service\Migration\Migration;
 
-class Createactionfetchqueuestatusforaddonqueue extends Migration
+class Createactionretryfailedjobforaddonqueue extends Migration
 {
     /**
      * Execute the migration
@@ -12,7 +12,7 @@ class Createactionfetchqueuestatusforaddonqueue extends Migration
     {
         ee('Model')->make('Action', [
             'class' => 'Queue',
-            'method' => 'fetchQueueStatus',
+            'method' => 'retryFailedJob',
             'csrf_exempt' => false,
         ])->save();
     }
@@ -25,7 +25,7 @@ class Createactionfetchqueuestatusforaddonqueue extends Migration
     {
         ee('Model')->get('Action')
             ->filter('class', 'Queue')
-            ->filter('method', 'fetchQueueStatus')
+            ->filter('method', 'retryFailedJob')
             ->delete();
     }
 }

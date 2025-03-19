@@ -27,12 +27,17 @@ class Index extends AbstractRoute
 
         $queueStatus = ee('queue:QueueStatus');
 
-        $urlQueueStatus = (new ActionUrl)->getActionUrl('Queue', 'FetchQueueStatus');
+        $urlQueueStatus = (new ActionUrl)->getActionUrl('Queue', 'fetchQueueStatus');
+        $urlPurgeAllPendingJobs = (new ActionUrl)->getActionUrl('Queue', 'purgeAllPendingJobs');
+        $urlRetryFailedJob = (new ActionUrl)->getActionUrl('Queue', 'retryFailedJob');
 
         $variables = [
             'size' => $queueStatus->getSize(),
             'assetPath' => URL_THIRD_THEMES . '/queue/assets/',
             'urlQueueStatus' => $urlQueueStatus,
+            'urlPurgeAllPendingJobs' => $urlPurgeAllPendingJobs,
+            'urlRetryFailedJob' => $urlRetryFailedJob,
+            'csrfToken' => CSRF_TOKEN,
         ];
 
         $this->setBody('Index', $variables);

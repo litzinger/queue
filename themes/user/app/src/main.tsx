@@ -5,6 +5,6 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('queue-app')!).render(
   <StrictMode>
-    <App />
+      <App />
   </StrictMode>,
 )

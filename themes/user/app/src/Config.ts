@@ -2,6 +2,9 @@ declare global {
     interface Window {
         APP_CONFIG: {
             urlQueueStatus: string;
+            urlPurgeAllPendingJobs: string;
+            urlRetryFailedJob: string;
+            csrfToken: string;
         };
     }
 }

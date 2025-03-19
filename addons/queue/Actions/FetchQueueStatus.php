@@ -3,7 +3,6 @@
 namespace BoldMinded\Queue\Actions;
 
 use BoldMinded\DataGrab\Queue\Drivers\QueueDriverInterface;
-use BoldMinded\Queue\Service\QueueStatus;
 
 class FetchQueueStatus extends Action
 {
@@ -12,22 +11,49 @@ class FetchQueueStatus extends Action
         /** @var QueueDriverInterface $queueManager */
         $queueDriver = ee('queue:QueueDriver');
 
-        $queues = [];
+        $pendingQueues = [];
+        $failedQueues = [];
 
-        foreach ($queueDriver->getAllQueues() as $queue) {
+        foreach ($queueDriver->getAllPendingQueues() as $queue) {
             $pendingJobs = $queueDriver->getPendingJobs($queue);
-            $failedJobs = $queueDriver->getFailedJobs($queue);
 
-            $queues[] = [
+            $pendingQueues[] = [
                 'queueName' => $queue,
-                'pendingCount' => count($pendingJobs),
-                'pending' => $this->paginate($pendingJobs),
-                'failedCount' => count($failedJobs),
-                'failed' => $this->paginate($failedJobs),
+                'count' => count($pendingJobs),
+                'jobs' => $this->paginate($pendingJobs),
             ];
         }
 
-        $this->sendJsonResponse($queues);
+        if (empty($pendingQueues)) {
+            $pendingQueues = [[
+                'queueName' => 'default',
+                'count' => 0,
+                'jobs' => [],
+            ]];
+        }
+
+        foreach ($queueDriver->getAllFailedQueues() as $queue) {
+            $failedJobs = $queueDriver->getFailedJobs($queue);
+
+            $failedQueues[] = [
+                'queueName' => $queue,
+                'count' => count($failedJobs),
+                'jobs' => $this->paginate($failedJobs),
+            ];
+        }
+
+        if (empty($failedQueues)) {
+            $failedQueues = [[
+                'queueName' => 'default',
+                'count' => 0,
+                'jobs' => [],
+            ]];
+        }
+
+        $this->sendJsonResponse([
+            'pending' => $pendingQueues,
+            'failed' => $failedQueues,
+        ]);
     }
 
     private function paginate(array $jobs = []): array

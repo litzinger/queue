@@ -53,26 +53,13 @@ class CommandQueueTestLarge extends Cli
     public function handle()
     {
         try {
-            $i = 1;
+            $i = 0;
             $this->info('Adding 5000 jobs to the queue...');
 
             while ($i < 5000) {
                 ee('queue:QueueManager')->push(TestJob::class, rand(0, PHP_INT_MAX));
                 $i++;
             }
-
-            $this->info('Checking queue size...');
-
-            $queueStatus = ee('queue:QueueStatus');
-            $this->info(sprintf('%d jobs found in the queue', $queueStatus->getSize()));
-
-            $this->info('Running consumer...');
-
-            $queueWorkerOptions = ee('queue:QueueWorkerOptions');
-            $queueWorkerOptions->maxJobs = 5;
-
-            $queueWorker = ee('queue:QueueWorker');
-            $queueWorker->daemon('default', 'default', $queueWorkerOptions);
         } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }
