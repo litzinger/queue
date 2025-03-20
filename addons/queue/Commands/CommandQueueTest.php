@@ -63,19 +63,19 @@ class CommandQueueTest extends Cli
 
             $this->info('Adding 5 jobs to the test_1 queue...');
 
-            ee('queue:QueueManager')->push(TestJob::class, 'Job #1, string payload');
-            ee('queue:QueueManager')->push(TestJob::class, 'Job #2, string payload');
-            ee('queue:QueueManager')->push(TestJob::class, ['Job #3, array payload']);
-            ee('queue:QueueManager')->push(TestJob::class, ['Job #4, array payload']);
-            ee('queue:QueueManager')->push(TestJob::class, ['Job #5, array payload']);
+            ee('queue:QueueManager')->push(TestJob::class, 'Job #1, string payload', 'test_1');
+            ee('queue:QueueManager')->push(TestJob::class, 'Job #2, string payload', 'test_1');
+            ee('queue:QueueManager')->push(TestJob::class, ['Job #3, array payload'], 'test_1');
+            ee('queue:QueueManager')->push(TestJob::class, ['Job #4, array payload'], 'test_1');
+            ee('queue:QueueManager')->push(TestJob::class, ['Job #5, array payload'], 'test_1');
 
             $this->info('Adding 5 jobs to the test_2 queue...');
 
-            ee('queue:QueueManager')->push(TestJob::class, 'Job #1, string payload');
-            ee('queue:QueueManager')->push(TestJob::class, 'Job #2, string payload');
-            ee('queue:QueueManager')->push(TestJob::class, ['Job #3, array payload']);
-            ee('queue:QueueManager')->push(TestJob::class, ['Job #4, array payload']);
-            ee('queue:QueueManager')->push(TestJob::class, ['Job #5, array payload']);
+            ee('queue:QueueManager')->push(TestJob::class, 'Job #1, string payload', 'test_2');
+            ee('queue:QueueManager')->push(TestJob::class, 'Job #2, string payload', 'test_2');
+            ee('queue:QueueManager')->push(TestJob::class, ['Job #3, array payload'], 'test_2');
+            ee('queue:QueueManager')->push(TestJob::class, ['Job #4, array payload'], 'test_2');
+            ee('queue:QueueManager')->push(TestJob::class, ['Job #5, array payload'], 'test_2');
 
             $this->info('Checking queue size...');
 
