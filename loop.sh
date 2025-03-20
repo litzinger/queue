@@ -1,6 +1,6 @@
 #!/bin/bash
 while true; do
-    php /var/www/html/system/ee/eecli.php queue:consume --limit=3
+    php /var/www/html/system/ee/eecli.php queue:work --limit=3
     sleep 1
 done
 

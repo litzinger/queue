@@ -7,45 +7,45 @@ use ExpressionEngine\Cli\Exception;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Events;
 use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Job;
 
-class CommandConsumeQueue extends Cli
+class CommandQueueWork extends Cli
 {
     /**
      * name of command
      * @var string
      */
-    public $name = 'ConsumeQueue';
+    public $name = 'QueueWork';
 
     /**
      * signature of command
      * @var string
      */
-    public $signature = 'queue:consume';
+    public $signature = 'queue:work';
 
     /**
      * Public description of command
      * @var string
      */
-    public $description = 'Consume jobs in the queue';
+    public $description = 'Start a worker to process jobs in the queue';
 
     /**
      * Summary of command functionality
      * @var [type]
      */
-    public $summary = 'Consume jobs in the queue';
+    public $summary = 'Start a queue worker';
 
     /**
      * How to use command
      * @var string
      */
-    public $usage = 'php eecli.php queue:consume';
+    public $usage = 'php eecli.php queue:work';
 
     /**
      * options available for use in command
      * @var array
      */
     public $commandOptions = [
-        'queue_name,name:' => 'Name of the queue to consume',
-        'limit,limit:' => 'Limit number of jobs to consume each time this is executed. Default is 1.',
+        'queue_name,name:' => 'Name of the queue the worker will process',
+        'limit,limit:' => 'Limit number of jobs to be processed each time this is executed. Default is 1.',
     ];
 
     /**
@@ -71,7 +71,7 @@ class CommandConsumeQueue extends Cli
             $queueName = $this->option('--queue_name') ?? 'default';
             $limit = $this->option('--limit') ?? 1;
 
-            $this->info(sprintf('Running %s consumer...', $queueName));
+            $this->info(sprintf('Running %s worker...', $queueName));
 
             $queueWorkerOptions = ee('queue:QueueWorkerOptions');
             $queueWorkerOptions->maxJobs = $limit;

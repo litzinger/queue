@@ -170,6 +170,6 @@ return [
         'queue:test-large' => BoldMinded\Queue\Commands\CommandQueueTestLarge::class,
         'queue:test-fail' => BoldMinded\Queue\Commands\CommandQueueTestFail::class,
         'queue:purge' => BoldMinded\Queue\Commands\CommandQueuePurge::class,
-        'queue:consume' => BoldMinded\Queue\Commands\CommandConsumeQueue::class,
+        'queue:work' => BoldMinded\Queue\Commands\CommandQueueWork::class,
     ],
 ];
