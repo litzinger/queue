@@ -3,6 +3,7 @@
 namespace BoldMinded\Queue\Queue\Drivers;
 
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsuleManager;
+use BoldMinded\Queue\Dependency\Illuminate\Database\Capsule\Manager as DatabaseCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Database\ConnectionResolver;
 use BoldMinded\Queue\Dependency\Illuminate\Database\DatabaseManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\DatabaseConnector;
@@ -26,6 +27,15 @@ class DatabaseDriver implements QueueDriverInterface
         $this->provider = $provider;
     }
 
+    public function getConnectionResolver(DatabaseCapsuleManager $database): ConnectionResolver
+    {
+        $connection = $database->getConnection();
+        $connectionResolver = new ConnectionResolver(['default' => $connection]);
+        $connectionResolver->setDefaultConnection('default');
+
+        return $connectionResolver;
+    }
+
     /**
      * @return QueueManager
      */
@@ -37,9 +47,7 @@ class DatabaseDriver implements QueueDriverInterface
         /** @var DatabaseManager $database */
         $database = $this->provider->make('DatabaseManager');
 
-        $connection = $database->getConnection();
-        $connectionResolver = new ConnectionResolver(['default' => $connection]);
-        $connectionResolver->setDefaultConnection('default');
+        $connectionResolver = $this->getConnectionResolver($database);
 
         $capsuleQueueManager->addConnector('database', function () use ($connectionResolver) {
             return new DatabaseConnector($connectionResolver);

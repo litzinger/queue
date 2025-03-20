@@ -68,6 +68,9 @@ return [
 
             return $databaseManager;
         },
+        'DatabaseDriver' => function ($provider) {
+            return new DatabaseDriver($provider);
+        },
         'QueueDriver' => function ($provider) {
             $config = ee()->config->item('queue') ?: [];
             $driver = $config['driver'] ?? 'database';

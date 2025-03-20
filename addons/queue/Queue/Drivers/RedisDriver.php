@@ -4,7 +4,9 @@ namespace BoldMinded\Queue\Queue\Drivers;
 
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\RedisConnector;
+use BoldMinded\Queue\Dependency\Illuminate\Queue\Failed\DatabaseUuidFailedJobProvider;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
+use BoldMinded\Queue\Dependency\Illuminate\Redis\Connections\PhpRedisConnection;
 use BoldMinded\Queue\Dependency\Illuminate\Redis\RedisManager;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\App;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\Redis;
@@ -31,6 +33,7 @@ class RedisDriver implements QueueDriverInterface
     public function getQueueManager(): QueueManager|\Illuminate\Queue\QueueManager
     {
         $capsuleQueueManager = new QueueCapsuleManager;
+        $container = $capsuleQueueManager->getContainer();
 
         $capsuleQueueManager->addConnector('redis', function () {
             // Could be predis too, but might need additional dependencies
@@ -46,12 +49,27 @@ class RedisDriver implements QueueDriverInterface
             'block_for' => 5,
         ]);
 
+        /** @var DatabaseDriver $database */
+        $database = ee('queue:DatabaseDriver');
+        $databaseManager = ee('queue:DatabaseManager');
+
+        $container['config']['queue.failed.driver'] = 'database';
+        $container['config']['queue.failed.database'] = 'default';
+        $container['config']['queue.failed.table'] = 'failed_jobs';
+        $container['db'] = $database;
+
+        $container['queue.failer'] = new DatabaseUuidFailedJobProvider(
+            $database->getConnectionResolver($databaseManager),
+            'default',
+            'failed_jobs'
+        );
+
         return $capsuleQueueManager->getQueueManager();
     }
 
     public function getPendingJobs(string $queueName = 'default'): array
     {
-        return [];
+        return $this->getJobsFromQueue($queueName);
     }
 
     public function getFailedJobs(string $queueName = 'default'): array
@@ -72,20 +90,36 @@ class RedisDriver implements QueueDriverInterface
 
     public function getAllPendingQueues(): array
     {
-        return $this->getAllQueues();
+        // Get all the queue names, but we're not interested in the "notify" queues
+        return array_filter(array_map(
+            fn($key) => str_replace('queues:', '', $key),
+            $this->getConnection()->keys('queues:*')
+        ), fn($key) => !str_contains($key, 'notify'));
     }
 
     public function getAllFailedQueues(): array
     {
-        return $this->getAllQueues();
+        return [];
     }
 
-    public function getAllQueues(): array
+    private function getJobsFromQueue(string $queueName): array
     {
-        return array_map(fn($key) => str_replace('queues:', '', $key), $this->getConnection()->keys('queues:*'));
+        return array_map(function ($job) use ($queueName) {
+            $decoded = json_decode($job);
+
+            return [
+                'id' => $decoded->uuid,
+                'queue' => $queueName,
+                'payload' => $decoded->data,
+                'attempts' => $decoded->attempts,
+                'available_at' => $decoded->available_at ?? 0,
+                'created_at' => $decoded->created_at ?? 0,
+                'reserved_at' => $decoded->reserved_at ?? 0,
+            ];
+        }, $this->getConnection()->lRange(sprintf('queues:%s', $queueName), 0, -1));
     }
 
-    private function getConnection()
+    private function getConnection(): PhpRedisConnection
     {
         return $this->getQueueManager()->getConnection('default');
     }
