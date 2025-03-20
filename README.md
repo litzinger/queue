@@ -48,8 +48,8 @@ Add some or all of the following to your config.php file to modify the default q
 
 ```php
 $config['queue'] = [
-    'enable_logging' => 'y',
-    'enable_detailed_logging' => 'y',
+    'enable_logging' => 'y', // This will log all queue actions to EE's Developer log. It's best to keep this off unless you need to debug something.
+    'enable_detailed_logging' => 'y', // This will append the full payload and stack trace (if applicable) to processed jobs.
     'driver' => 'database', // redis is also supported
     'redis_config' => [ // If using redis you will also need these
         'host' => 'redis',
