@@ -5,6 +5,7 @@ declare global {
             urlPurgeAllPendingJobs: string;
             urlRetryFailedJob: string;
             csrfToken: string;
+            queueDriver: string;
         };
     }
 }

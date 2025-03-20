@@ -54,6 +54,7 @@ class RedisDriver implements QueueDriverInterface
 
         /** @var DatabaseDriver $database */
         $database = $this->provider->make('DatabaseDriver');
+        /** @var DatabaseCapsuleManager $databaseManager */
         $databaseManager = $this->provider->make('DatabaseManager');
 
         $container['config']['queue.failed.driver'] = 'database';
@@ -77,18 +78,26 @@ class RedisDriver implements QueueDriverInterface
 
     public function getFailedJobs(string $queueName = 'default'): array
     {
-        // @todo
-        return [];
+        /** @var DatabaseDriver $database */
+        $database = $this->provider->make('DatabaseDriver');
+
+        return $database->getFailedJobs($queueName);
     }
 
     public function getFailedJobByUUID(string $jobId): array|null
     {
-        return null;
+        /** @var DatabaseDriver $database */
+        $database = $this->provider->make('DatabaseDriver');
+
+        return $database->getFailedJobByUUID($jobId);
     }
 
     public function deleteFailedJobByUUID(string $jobId): bool
     {
-        return false;
+        /** @var DatabaseDriver $database */
+        $database = $this->provider->make('DatabaseDriver');
+
+        return $database->deleteFailedJobByUUID($jobId);
     }
 
     public function getAllPendingQueues(): array
@@ -97,12 +106,15 @@ class RedisDriver implements QueueDriverInterface
         return array_filter(array_map(
             fn($key) => str_replace('queues:', '', $key),
             $this->getConnection()->keys('queues:*')
-        ), fn($key) => !str_contains($key, 'notify'));
+        ), fn($key) => !str_contains($key ?? '', 'notify'));
     }
 
     public function getAllFailedQueues(): array
     {
-        return [];
+        /** @var DatabaseDriver $database */
+        $database = $this->provider->make('DatabaseDriver');
+
+        return $database->getAllFailedQueues();
     }
 
     private function getJobsFromQueue(string $queueName): array

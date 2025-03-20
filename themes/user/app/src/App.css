@@ -14,3 +14,7 @@ td.w-full {
     max-width:100%;
     white-space:nowrap;
 }
+
+.text-light {
+    color: var(--ee-text-secondary);
+}

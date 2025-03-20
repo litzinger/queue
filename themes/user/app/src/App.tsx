@@ -128,7 +128,13 @@ function App() {
         <Suspense fallback={<Loading />}>
             <div className="panel">
                 <div className="panel-heading">
-                    <h2>Current Workload</h2>
+                    <div className="title-bar title-bar--large">
+                        <h3 className="title-bar__title">Current Workload</h3>
+
+                        <div className="title-bar__extra-tools text-light">
+                            Driver: {config.queueDriver}
+                        </div>
+                    </div>
                 </div>
                 <div className="panel-body panel-body__table">
                     <div className="table-responsive table-responsive--collapsible">
@@ -201,7 +207,9 @@ function App() {
             {hasFailedJobs && (
                 <div className="panel">
                     <div className="panel-heading">
-                        <h2>Failed Jobs</h2>
+                        <div className="title-bar title-bar--large">
+                            <h3 className="title-bar__title">Failed Jobs</h3>
+                        </div>
                     </div>
                     <div className="panel-body panel-body__table">
                         <div className="table-responsive table-responsive--collapsible">

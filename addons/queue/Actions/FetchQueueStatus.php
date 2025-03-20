@@ -56,6 +56,10 @@ class FetchQueueStatus extends Action
         ]);
     }
 
+    /**
+     * Keep this simple for now, especially since we're not displaying
+     * information from each job in the UI. Perhaps something for another day.
+     */
     private function paginate(array $jobs = []): array
     {
         return array_slice($jobs, 0, 100);

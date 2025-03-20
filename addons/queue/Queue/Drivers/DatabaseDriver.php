@@ -81,7 +81,7 @@ class DatabaseDriver implements QueueDriverInterface
 
     public function getPendingJobs(string $queueName = 'default'): array
     {
-        $database = ee('queue:DatabaseManager');
+        $database = $this->provider->make('DatabaseManager');
 
         /** @var Collection $jobs */
         $jobs = $database->getConnection()
@@ -104,7 +104,7 @@ class DatabaseDriver implements QueueDriverInterface
 
     public function getFailedJobs(string $queueName = 'default'): array
     {
-        $database = ee('queue:DatabaseManager');
+        $database = $this->provider->make('DatabaseManager');
 
         /** @var Collection $jobs */
         $jobs = $database->getConnection()
@@ -126,7 +126,7 @@ class DatabaseDriver implements QueueDriverInterface
 
     public function getFailedJobByUUID(string $jobId): array|null
     {
-        $database = ee('queue:DatabaseManager');
+        $database = $this->provider->make('DatabaseManager');
 
         $job = $database->getConnection()
             ->table('failed_jobs')
@@ -142,7 +142,7 @@ class DatabaseDriver implements QueueDriverInterface
 
     public function deleteFailedJobByUUID(string $jobId): bool
     {
-        $database = ee('queue:DatabaseManager');
+        $database =$this->provider->make('DatabaseManager');
 
         return $database->getConnection()
             ->table('failed_jobs')
@@ -152,7 +152,7 @@ class DatabaseDriver implements QueueDriverInterface
 
     public function getAllPendingQueues(): array
     {
-        $database = ee('queue:DatabaseManager');
+        $database = $this->provider->make('DatabaseManager');
 
         return $database->getConnection()->table('jobs')
             ->distinct()
@@ -162,7 +162,7 @@ class DatabaseDriver implements QueueDriverInterface
 
     public function getAllFailedQueues(): array
     {
-        $database = ee('queue:DatabaseManager');
+        $database = $this->provider->make('DatabaseManager');
 
         return $database->getConnection()->table('failed_jobs')
             ->distinct()
