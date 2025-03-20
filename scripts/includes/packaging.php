@@ -4,9 +4,7 @@
 $hash = git_get_hash();
 $branch = strtolower(preg_replace('/[^a-zA-Z0-9]/', '-', str_replace('feature/', '', git_get_branch())));
 $outputFileName = sprintf($addonName . '-%s-%s-%s.zip', $releaseTag, $branch, $hash);
-$outputFileNameTrial = sprintf($addonName . '-trial-%s-%s-%s.zip', $releaseTag, $branch, $hash);
 $outputName = $outputDir .'/'. $outputFileName;
-$outputNameTrial = $outputDir .'/'. $outputFileNameTrial;
 
 if (file_exists($outputName)) {
     echo sprintf('The output file "%s" already exists...' . PHP_EOL, $outputName);
@@ -40,6 +38,9 @@ foreach ($iterator as $name => $file) {
 // Cleanup
 exec('find '. $tempDir .' | grep composer.json | xargs rm');
 exec('find '. $tempDir .' | grep composer.lock | xargs rm');
+// Remove main vendor dir, we have everything scoped in vendor-build
+exec('rm -rf '. $tempDir . '/' . $addonDistDir . '/vendor');
+exec('rm -rf '. $tempDir . '/' . $addonDistDir . '/vendor-bin');
 
 // Create release archive
 $zipArchive = new ZipArchive();
@@ -59,8 +60,6 @@ foreach ($iterator as $name => $file) {
         $zipArchive->addFile($name, $local_name);
     }
 }
-
-$trialFile =  $tempDir . '/' . $addonDistDir . '/Config/trial';
 
 $zipArchive->close();
 
