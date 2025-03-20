@@ -21,8 +21,10 @@ class DatabaseDriver implements QueueDriverInterface
     /**
      * @param Provider $provider
      */
-    public function __construct(Provider $provider, array $config = [])
-    {
+    public function __construct(
+        Provider $provider,
+        array $config = []
+    ) {
         $this->config = $config;
         $this->provider = $provider;
     }

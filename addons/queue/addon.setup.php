@@ -61,7 +61,7 @@ return [
                 'prefix' => ee('db')->dbprefix . 'queue_',
             ];
         },
-        'DatabaseManager' => function ($provider) {
+        'DatabaseManager' => function ($provider): DatabaseCapsuleManager {
             $databaseManager = new DatabaseCapsuleManager;
             $databaseManager->addConnection($provider->make('DatabaseConfig'));
             $databaseManager->setAsGlobal();
@@ -76,15 +76,18 @@ return [
             $driver = $config['driver'] ?? 'database';
 
             // @todo this is incomplete and unsupported
-            if ($driver === 'sqs') {
-                return new SQSDriver($provider, $config['sqs_config'] ?? []);
-            }
+            // if ($driver === 'sqs') {
+            //    return new SQSDriver($provider, $config['sqs_config'] ?? []);
+            // }
 
             if ($driver === 'redis') {
-                return new RedisDriver($provider, ['default' => $config['redis_config'] ?? []]);
+                return new RedisDriver(
+                    $provider,
+                    ['default' => $config['redis_config'] ?? []],
+                );
             }
 
-            return new DatabaseDriver($provider);
+            return $provider->make('DatabaseDriver');
         },
         'QueueManager' => function ($provider) {
             $queueDriver = $provider->make('QueueDriver');

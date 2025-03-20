@@ -2,6 +2,7 @@
 
 namespace BoldMinded\Queue\Queue\Drivers;
 
+use BoldMinded\Queue\Dependency\Illuminate\Database\Capsule\Manager as DatabaseCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Capsule\Manager as QueueCapsuleManager;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Connectors\RedisConnector;
 use BoldMinded\Queue\Dependency\Illuminate\Queue\Failed\DatabaseUuidFailedJobProvider;
@@ -9,7 +10,6 @@ use BoldMinded\Queue\Dependency\Illuminate\Queue\QueueManager;
 use BoldMinded\Queue\Dependency\Illuminate\Redis\Connections\PhpRedisConnection;
 use BoldMinded\Queue\Dependency\Illuminate\Redis\RedisManager;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\App;
-use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\Redis;
 use ExpressionEngine\Core\Provider;
 
 class RedisDriver implements QueueDriverInterface
@@ -21,7 +21,10 @@ class RedisDriver implements QueueDriverInterface
     /**
      * @param Provider $provider
      */
-    public function __construct(Provider $provider, array $config = [])
+    public function __construct(
+        Provider $provider,
+        array $config = [],
+    )
     {
         $this->config = $config;
         $this->provider = $provider;
@@ -50,8 +53,8 @@ class RedisDriver implements QueueDriverInterface
         ]);
 
         /** @var DatabaseDriver $database */
-        $database = ee('queue:DatabaseDriver');
-        $databaseManager = ee('queue:DatabaseManager');
+        $database = $this->provider->make('DatabaseDriver');
+        $databaseManager = $this->provider->make('DatabaseManager');
 
         $container['config']['queue.failed.driver'] = 'database';
         $container['config']['queue.failed.database'] = 'default';
