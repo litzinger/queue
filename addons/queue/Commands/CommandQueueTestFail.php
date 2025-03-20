@@ -53,7 +53,6 @@ class CommandQueueTestFail extends Cli
     public function handle()
     {
         try {
-            $i = 1;
             $this->info('Adding 1 job that will fail to the queue...');
 
             ee('queue:QueueManager')->push(TestFailedJob::class, rand(0, PHP_INT_MAX));

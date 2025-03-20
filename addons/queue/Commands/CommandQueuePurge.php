@@ -2,6 +2,7 @@
 
 namespace BoldMinded\Queue\Commands;
 
+use BoldMinded\Queue\Service\QueueStatus;
 use ExpressionEngine\Cli\Cli;
 
 class CommandQueuePurge extends Cli
@@ -41,7 +42,7 @@ class CommandQueuePurge extends Cli
      * @var array
      */
     public $commandOptions = [
-
+        'queue_name,name:' => 'Name of the queue to purge',
     ];
 
     /**
@@ -50,6 +51,24 @@ class CommandQueuePurge extends Cli
      */
     public function handle()
     {
-        $this->info('Hello World!');
+        try {
+            $queueName = $this->option('--queue_name') ?? 'default';
+
+            if (!$queueName) {
+                return false;
+            }
+
+            /** @var QueueStatus $queueStatus */
+            $queueStatus = ee('queue:QueueStatus');
+            $queueStatus->clear($queueName);
+
+            $this->info(sprintf(
+                '%s queue purged, %d jobs found in the queue',
+                $queueName,
+                $queueStatus->getSize()
+            ));
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+        }
     }
 }
