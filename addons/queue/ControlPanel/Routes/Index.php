@@ -42,7 +42,7 @@ class Index extends AbstractRoute
             'urlPurgeAllPendingJobs' => $urlPurgeAllPendingJobs,
             'urlRetryFailedJob' => $urlRetryFailedJob,
             'csrfToken' => CSRF_TOKEN,
-            'queueDriver' => $driver,
+            'queueDriver' => ucfirst($driver),
         ];
 
         ee('CP/Alert')->makeInline('shared-form')
