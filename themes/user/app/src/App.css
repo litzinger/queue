@@ -10,9 +10,9 @@
     display: inline-block;
 }
 
-td.w-full {
-    max-width:100%;
-    white-space:nowrap;
+.w-full {
+    max-width: 100%;
+    white-space: nowrap;
 }
 
 .text-light {

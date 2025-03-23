@@ -84,15 +84,15 @@ class CommandQueueTest extends Cli
 //            $this->info(sprintf('%d jobs found in the test_1 queue', $queueStatus->getSize('test_1')));
 //            $this->info(sprintf('%d jobs found in the test_2 queue', $queueStatus->getSize('test_2')));
 
-            $this->info('Running consumer...');
-
-            $queueWorkerOptions = ee('queue:QueueWorkerOptions');
-            $queueWorkerOptions->maxJobs = 50;
-
-            $queueWorker = ee('queue:QueueWorker');
-            $queueWorker->daemon('default', 'default', $queueWorkerOptions);
-
-            $this->info(sprintf('%d jobs found in the queue', $queueStatus->getSize()));
+//            $this->info('Running consumer...');
+//
+//            $queueWorkerOptions = ee('queue:QueueWorkerOptions');
+//            $queueWorkerOptions->maxJobs = 50;
+//
+//            $queueWorker = ee('queue:QueueWorker');
+//            $queueWorker->daemon('default', 'default', $queueWorkerOptions);
+//
+//            $this->info(sprintf('%d jobs found in the queue', $queueStatus->getSize()));
         } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }

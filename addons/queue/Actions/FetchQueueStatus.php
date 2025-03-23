@@ -35,10 +35,15 @@ class FetchQueueStatus extends Action
         foreach ($queueDriver->getAllFailedQueues() as $queue) {
             $failedJobs = $queueDriver->getFailedJobs($queue);
 
+            $jobs = array_map(function ($job) {
+                $job['payload'] = json_decode($job['payload'] ?? '', true);
+                return $job;
+            }, $failedJobs);
+
             $failedQueues[] = [
                 'queueName' => $queue,
-                'count' => count($failedJobs),
-                'jobs' => $this->paginate($failedJobs),
+                'count' => count($jobs),
+                'jobs' => $this->paginate($jobs),
             ];
         }
 

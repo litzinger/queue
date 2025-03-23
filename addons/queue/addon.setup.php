@@ -15,7 +15,6 @@ use BoldMinded\Queue\Dependency\Litzinger\Basee\Logger;
 use BoldMinded\Queue\Dependency\Litzinger\Basee\Setting;
 use BoldMinded\Queue\Queue\Drivers\DatabaseDriver;
 use BoldMinded\Queue\Queue\Drivers\RedisDriver;
-use BoldMinded\Queue\Queue\Drivers\SQSDriver;
 use BoldMinded\Queue\Queue\Exceptions\QueueException;
 use BoldMinded\Queue\Queue\Subscribers\QueueSubscriber;
 use BoldMinded\Queue\Service\QueueStatus;

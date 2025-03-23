@@ -2,11 +2,12 @@
 
 namespace BoldMinded\Queue\Queue\Jobs;
 
-use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Job;
+use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\ShouldBeUnique;
+use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\ShouldQueue;
 
-class AbstractJob
+class AbstractJob implements ShouldQueue, ShouldBeUnique
 {
-    protected Job $job;
+    protected $job;
 
     protected array $settings = [];
 

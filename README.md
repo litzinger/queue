@@ -1,11 +1,4 @@
 
-## Creating a build
-
-```bash
-cd themes/user/app
-pnpm build --emptyOutDir
-```
-
 ## Consuming Jobs
 
 Make sure a crontab is added to your server. This example will run very minute and process as many jobs
@@ -15,14 +8,15 @@ in the queue as it can until the process reaches the PHP timeout.
 */1 * * * * php /var/www/mysite.com/system/ee/eecli.php queue:work
 ```
 
-If you want a to slow things down a bit add a woker that runs every 2 minutes and only processes 10 jobs at a time.
+If you want a to slow things down a bit add a worker that runs every 2 minutes and only processes 10 jobs at a time.
      
 ```bash
 */2 * * * * php /var/www/mysite.com/system/ee/eecli.php queue:work --limit=10
 ```  
 
 Cron can only execute every minute at minimum. If you want something executing more frequently you can use a bash 
-script that executes the worker every N seconds.
+script that executes the worker every N seconds. This will endlessly loop and call the worker every second and process
+one job a second.
 
 ```bash
 #!/bin/bash
@@ -40,7 +34,9 @@ nohup bash path/to/loop.sh &
 
 When choosing which method and how often a worker runs it is important to consider _what_ it is processing. If you are running
 a cron every minute that ends up processing 100 jobs, and each job is long running task, it increases the chance of
-the job failing. Running a worker more frequently and processing a smaller number of jobs helps reduce failures.
+the job failing. Running a worker more frequently and processing a smaller number of jobs helps reduce failures. The queue 
+is able to process thousands of jobs a minute (or faster), depending on how resource intensive the jobs are. You'll want to adjust
+how you run the `queue:work` command based on what types of jobs you're processing.
 
 ### Config overrides
 
@@ -102,4 +98,131 @@ is unsurprisingly, `default`. If you use a custom queue be sure to instruct your
 
 ```php
 ee('queue:QueueManager')->push(MyJob::class, 'payload', 'my_addon_queue')
+```
+
+## Coilpack
+
+If using the Redis driver, and Coilpack, in your `coilpack/.env file` add the following:
+
+```dotenv
+REDIS_URL=""
+REDIS_HOST=redis
+REDIS_USERNAME=null
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_PREFIX=""
+REDIS_CLUSTER=""
+```
+
+## Horizon
+
+If you want to take your queue management to the next level you can install [Coilpack](https://expressionengine.github.io/coilpack-docs/) 
+and [Laravel Horizon](https://laravel.com/docs/12.x/horizon). Horizon provides a dashboard and code-driven configuration 
+for your Laravel powered Redis queues. Horizon allows you to easily monitor key metrics of your queue system such as job 
+throughput, runtime, and job failures. If you are using the database driver for Queue, then Horizon is not an option. 
+It only works when using Redis.
+
+If using Horizon, and you visit the Queue module page in the ExpressionEngine control panel, it will show a list of active
+queues and their jobs, however, failed jobs will not show up in this interface. Queue is a simplified/standalone version
+of Laravel's queue, and once Horizon is installed it manages failed jobs directly in Redis.
+
+In most cases Queue by itself will be enough, but if you're processing hundreds of thousands of jobs and need more robust
+monitoring and reporting, Horizon is definitely worth exploring.
+
+To install Horizon cd into your `coilpack` directory and run the following commands.
+```
+composer require laravel/horizon
+php artisan horizon:install
+```
+
+At this point you should be able to visit https://yoursite.com/horizon and you should see the Horizon interface. The 
+installation is complete, but no supervisors have been started, so the interface will likely say "Inactive" in the upper
+right corner. To start horizon, run `php artisan horizon`. If there are any items in your queue, they should start
+processing.
+
+## Creating Jobs as an add-on developer
+
+Create a class anywhere in your add-on, but it needs to be properly namespaced. For consistency
+creating a `Queue/Jobs` folder in your add-on may be a good place to put it. At minimum you need a class that contains
+a `fire()` method accepting 2 parameters. Be sure to check out the [laravel documentation](https://laravel.com/docs/12.x/queues) 
+for more in-depth documentation about queues.
+
+```php
+<?php
+
+namespace BoldMinded\Queue\Queue\Jobs;
+
+class TestJob implements ShouldQueue, ShouldBeUnique
+{
+    public function fire($job, $payload): bool
+    {
+        // Do stuff
+    }
+}
+```
+
+If you want to typehint the $job parameter, be sure to use a union. If someone uses your add-on and also uses Horizon, 
+when Horizon executes the job it will expect the job namespace to be that of the `vendor`
+folder in the Coilpack directory and not have any knowledge of the `BoldMinded\Queue\Dependency` namespace as it will
+be executing outside of the ExpressionEngine domain. You could also choose to not typehint `$job` at all. It won't affect
+the operation.
+
+To see working examples you can run the following commands.
+
+This will execute queue/Commands/CommandQueueTest.php, which adds 5 jobs to the queue, each an instance of `TestJob` (see below)
+
+```bash
+php system/ee/eecli.php queue:test`
+```
+
+Then run this command, which will process the jobs, which calls the `fire()` method for each job.
+
+```bash
+`php system/ee/eecli.php queue:work --limit=5`
+```
+
+Example job class you can use as a starting point.
+
+```php
+<?php
+
+namespace BoldMinded\Queue\Queue\Jobs;
+
+use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Job;
+use ExpressionEngine\Cli\CliFactory;
+
+class TestJob implements ShouldQueue, ShouldBeUnique
+{
+    public function fire(
+        Job|\Illuminate\Contracts\Queue\Job $job,
+        string|array $payload): bool
+    {
+        $factory = new CliFactory();
+        $output = $factory->newStdio();
+
+        $output->outln('<<yellow>>Processed:<<reset>>');
+
+        if (is_array($payload)) {
+            $display = '<<dim>>'. json_encode($payload, JSON_UNESCAPED_UNICODE) .'<<reset>>';
+        } else {
+            $display = '<<dim>>'. $payload .'<<reset>>';
+        }
+
+        $output->outln($display);
+
+        $job->delete();
+
+        return true;
+    }
+}
+```
+
+## Creating a build
+
+If you've checked out this repo from Github, you'll need to create a build of the React app for the EE control panel.
+
+```bash
+cd themes/user/app
+pnpm install
+pnpm build --emptyOutDir
 ```

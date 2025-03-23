@@ -3,13 +3,19 @@
 namespace BoldMinded\Queue\Queue\Jobs;
 
 use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Job;
-use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\ShouldBeUnique;
-use BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\ShouldQueue;
 use ExpressionEngine\Cli\CliFactory;
 
-class TestJob extends AbstractJob implements ShouldQueue, ShouldBeUnique
+class TestJob extends AbstractJob
 {
-    public function fire(Job $job, string|array $payload): bool
+    /*
+     * If you typehint job, be sure to use a union. If using Horizon to process
+     * jobs it will expect the non-vendored version of the job, and if using Redis
+     * it could come in as RedisJob, not as \Illuminate\Contracts\Queue\Job
+     * or \BoldMinded\Queue\Dependency\Illuminate\Contracts\Queue\Job
+     */
+    public function fire(
+        Job|\Illuminate\Contracts\Queue\Job $job,
+        string|array $payload): bool
     {
         $factory = new CliFactory();
         $output = $factory->newStdio();

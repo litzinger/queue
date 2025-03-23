@@ -1,8 +1,11 @@
 <script>
     window.APP_CONFIG = {
+        urlBase: "<?= $urlBase ?>",
         urlQueueStatus: "<?= $urlQueueStatus ?>",
         urlPurgeAllPendingJobs: "<?= $urlPurgeAllPendingJobs ?>",
+        urlGetFailedJob: "<?= $urlGetFailedJob ?>",
         urlRetryFailedJob: "<?= $urlRetryFailedJob ?>",
+        urlDeleteFailedJob: "<?= $urlDeleteFailedJob ?>",
         csrfToken: "<?= $csrfToken ?>",
         queueDriver: "<?= $queueDriver ?>",
     };

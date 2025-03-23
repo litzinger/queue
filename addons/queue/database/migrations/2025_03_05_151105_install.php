@@ -5,6 +5,15 @@ use ExpressionEngine\Service\Migration\Migration;
 
 class Install extends Migration
 {
+    private array $actions = [
+        'fetchQueueStatus',
+        'purgeAllPendingJobs',
+        'retryFailedJob',
+        'queueCron',
+        'deleteFailedJob',
+        'getFailedJob',
+    ];
+
     /**
      * Execute the migration
      * @return void
@@ -40,6 +49,14 @@ class Install extends Migration
                 $table->unsignedInteger('created_at');
             });
         }
+
+        foreach ($this->actions as $action) {
+            ee('Model')->make('Action', [
+                'class' => 'Queue',
+                'method' => $action,
+                'csrf_exempt' => false,
+            ])->save();
+        }
     }
 
     /**
@@ -48,6 +65,9 @@ class Install extends Migration
      */
     public function down()
     {
-        // Write migration rollback code here
+        ee('Model')->get('Action')
+            ->filter('class', 'Queue')
+            ->filter('method', 'IN', $this->actions)
+            ->delete();
     }
 }

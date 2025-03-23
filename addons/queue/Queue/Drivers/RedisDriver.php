@@ -12,6 +12,14 @@ use BoldMinded\Queue\Dependency\Illuminate\Redis\RedisManager;
 use BoldMinded\Queue\Dependency\Illuminate\Support\Facades\App;
 use ExpressionEngine\Core\Provider;
 
+/**
+ * If using Horizon, Redis must be the driver used, however, Horizon
+ * saves failed jobs to a sorted set in Redis. The CP page in EE might
+ * show an active count of pending jobs, but it won't list any failures,
+ * you'll have to go to Horizon for that. If a supervisor is not running
+ * in Horizon, b/c you ran php artisan horizon, then it'll operate entirely
+ * through the Queue module.
+ */
 class RedisDriver implements QueueDriverInterface
 {
     private array $config = [];
@@ -119,6 +127,8 @@ class RedisDriver implements QueueDriverInterface
 
     private function getJobsFromQueue(string $queueName): array
     {
+        $queueList = $this->getConnection()->lRange(sprintf('queues:%s', $queueName), 0, -1) ?: [];
+
         return array_map(function ($job) use ($queueName) {
             $decoded = json_decode($job);
 
@@ -131,7 +141,7 @@ class RedisDriver implements QueueDriverInterface
                 'created_at' => $decoded->created_at ?? 0,
                 'reserved_at' => $decoded->reserved_at ?? 0,
             ];
-        }, $this->getConnection()->lRange(sprintf('queues:%s', $queueName), 0, -1));
+        }, $queueList);
     }
 
     private function getConnection(): PhpRedisConnection
