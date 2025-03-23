@@ -102,7 +102,8 @@ ee('queue:QueueManager')->push(MyJob::class, 'payload', 'my_addon_queue')
 
 ## Coilpack
 
-If using the Redis driver, and Coilpack, in your `coilpack/.env file` add the following:
+If using the Redis driver, and Coilpack, in your `coilpack/.env file` add the following. This is what works if using DDEV, but
+you may need to make adjustments based on your environment configuration.
 
 ```dotenv
 REDIS_URL=""
