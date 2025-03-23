@@ -58,7 +58,7 @@ $config['queue'] = [
         'timeout' => '0',
         'password' => null,
     ],
-    'name' => 'default', // Optionally use --name on the consumer to override this value at run time. 
+    'name' => 'default', // Optionally use --name on the worker to override this value at run time. 
     'enable_logging' => 'y',
     'enable_detailed_logging' => 'y',
     'backoff' => 0,
@@ -68,7 +68,7 @@ $config['queue'] = [
     'max_tries' => 3,
     'force' => false,
     'stop_when_empty' => true,
-    'max_jobs' => 1, // Optionally use --limit on the consumer to override this value at run time. 
+    'max_jobs' => 1, // Optionally use --limit on the worker to override this value at run time. 
     'max_time' => 120,
     'rest' => 0,
 ];
@@ -81,7 +81,7 @@ If you're unfamiliar with Laravel Queues it may be a good idea to review https:/
 Laravel's documentation has examples of how to construct a queue job handler. You can also refer to the examples here
 in the Queue add-on itself. The `Queue/Jobs/` folder contains some examples that are used to test the queue.
 
-To add queue support to your add-on wrap the data you usually process a run-time in a conditional that checks to see
+To add queue support to your add-on wrap the data you usually process at run-time in a conditional that checks to see
 if the Queue module files are present, and the module is actually installed. If not, process your data as usual. 
 Whatever you do to proces your data will likely need to be replicated in some manor inside of your custom job handler.
 Another thing to remember: make sure your job handler is properly namespaced, otherwise the file will not be found.
@@ -99,7 +99,7 @@ if (ee('Addon')->get('queue')?->isInstalled()) {
 ```
 
 If you want your add-on to manage it's own queue pass the name of the queue as the 3rd parameter. The default queue name
-is unsurprisingly, `default`. If you use a custom queue be sure to instruct your users to add a queue consumer for that queue.
+is unsurprisingly, `default`. If you use a custom queue be sure to instruct your users to add a queue worker for that queue.
 
 ```php
 ee('queue:QueueManager')->push(MyJob::class, 'payload', 'my_addon_queue')
@@ -232,3 +232,12 @@ cd themes/user/app
 pnpm install
 pnpm build --emptyOutDir
 ```
+
+You will also need to install composer dependencies. From the root of this project run:
+
+```bash
+composer install -o
+```
+
+`-o` just optimizes the build. Queue also uses the php-scoper package to namespace all dependencies so they do not collide
+with any other add-ons, or ExpressionEngine itself, that might be using the same packages but of different versions.
