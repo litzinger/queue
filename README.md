@@ -32,6 +32,11 @@ You can use `nohup` to run the bash script so it continues to run even after exi
 nohup bash path/to/loop.sh &
 ```
 
+It is recommended to setup a crontab or bash script to automatically execute the queue worker. If that is not an option 
+you can use a service such as [Better Stack](https://betterstack.com/uptime) or [UptimeRobot](https://uptimerobot.com/)
+to hit an ExpressionEngine action endpoint (e.g. https://acme.com/?ACT=123) at a regular interval. After you install
+Queue the action URL will be presented to you in the module's admin page.
+
 When choosing which method and how often a worker runs it is important to consider _what_ it is processing. If you are running
 a cron every minute that ends up processing 100 jobs, and each job is long running task, it increases the chance of
 the job failing. Running a worker more frequently and processing a smaller number of jobs helps reduce failures. The queue 
@@ -162,7 +167,7 @@ class TestJob implements ShouldQueue, ShouldBeUnique
 }
 ```
 
-If you want to typehint the $job parameter, be sure to use a union. If someone uses your add-on and also uses Horizon, 
+If you want to typehint the `$job` parameter, be sure to use a union. If someone uses your add-on and also uses Horizon, 
 when Horizon executes the job it will expect the job namespace to be that of the `vendor`
 folder in the Coilpack directory and not have any knowledge of the `BoldMinded\Queue\Dependency` namespace as it will
 be executing outside of the ExpressionEngine domain. You could also choose to not typehint `$job` at all. It won't affect
