@@ -241,3 +241,16 @@ composer install -o
 
 `-o` just optimizes the build. Queue also uses the php-scoper package to namespace all dependencies so they do not collide
 with any other add-ons, or ExpressionEngine itself, that might be using the same packages but of different versions.
+
+## Viewing Redis keys
+
+Using `redis-cli` is powerful but a little difficult to navigate. You can also use Redis Insight to connect to the Redis 
+database and view all the keys through a user friendly UI. If you're using something like DDEV to develop locally you
+will have to expose the Redis port from the container. In the `docker-compose.redis.yaml` file just change the port.
+The first value is what is exposed to your host machine. In this case I simply added a 1 to the end. In the Redis Insight
+app when creating the connection I connect to that port, e.g `127.0.0.1:63791`.
+
+```yaml
+    ports:
+      - 63791:6379
+```
