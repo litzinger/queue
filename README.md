@@ -1,3 +1,8 @@
+## Installation
+
+To install Queue, unzip the zip file and place the `user/addons/queue` folder into 
+your `system/user/addons` folder. Then login to the Control Panel and go to the 
+Developer->Add-ons page and install Queue.
 
 ## Consuming Jobs
 
@@ -105,21 +110,6 @@ is unsurprisingly, `default`. If you use a custom queue be sure to instruct your
 ee('queue:QueueManager')->push(MyJob::class, 'payload', 'my_addon_queue')
 ```
 
-## Coilpack
-
-If using the Redis driver, and Coilpack, in your `coilpack/.env file` add the following. This is what works if using DDEV, but
-you may need to make adjustments based on your environment configuration.
-
-```dotenv
-REDIS_URL=""
-REDIS_HOST=redis
-REDIS_USERNAME=null
-REDIS_PASSWORD=null
-REDIS_PORT=6379
-REDIS_PREFIX=""
-REDIS_CLUSTER=""
-```
-
 ## Horizon
 
 If you want to take your queue management to the next level you can install [Coilpack](https://expressionengine.github.io/coilpack-docs/) 
@@ -136,6 +126,7 @@ In most cases Queue by itself will be enough, but if you're processing hundreds 
 monitoring and reporting, Horizon is definitely worth exploring.
 
 To install Horizon cd into your `coilpack` directory and run the following commands.
+
 ```
 composer require laravel/horizon
 php artisan horizon:install
@@ -145,6 +136,22 @@ At this point you should be able to visit https://yoursite.com/horizon and you s
 installation is complete, but no supervisors have been started, so the interface will likely say "Inactive" in the upper
 right corner. To start horizon, run `php artisan horizon`. If there are any items in your queue, they should start
 processing.
+
+## Coilpack
+
+If using the Redis driver, and Coilpack, in your `coilpack/.env file` add the following. This is what works if using DDEV, but
+you may need to make adjustments based on your environment configuration.
+
+```dotenv
+REDIS_URL=""
+REDIS_HOST=redis
+REDIS_USERNAME=null
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_PREFIX=""
+REDIS_CLUSTER=""
+```
+
 
 ## Creating Jobs as an add-on developer
 
@@ -175,7 +182,7 @@ the operation.
 
 To see working examples you can run the following commands.
 
-This will execute queue/Commands/CommandQueueTest.php, which adds 5 jobs to the queue, each an instance of `TestJob` (see below)
+This will execute `queue/Commands/CommandQueueTest.php`, which adds 5 jobs to the queue, each an instance of `TestJob` (see below)
 
 ```bash
 php system/ee/eecli.php queue:test`
@@ -244,7 +251,7 @@ with any other add-ons, or ExpressionEngine itself, that might be using the same
 
 ## Viewing Redis keys
 
-Using `redis-cli` is powerful but a little difficult to navigate. You can also use Redis Insight to connect to the Redis 
+Using `redis-cli` is powerful but a little difficult to navigate. You can also use [Redis Insight](https://redis.io/insight/) to connect to the Redis 
 database and view all the keys through a user friendly UI. If you're using something like DDEV to develop locally you
 will have to expose the Redis port from the container. In the `docker-compose.redis.yaml` file just change the port.
 The first value is what is exposed to your host machine. In this case I simply added a 1 to the end. In the Redis Insight
