@@ -2,12 +2,11 @@ name: Build with Tag
 
 on:
   push:
-    branches:
-      - main
-#on:
-#  push:
-#    tags:
-#      - '*'
+
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -23,13 +22,19 @@ jobs:
           version: 10
           run_install: false
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+#      - name: Set up PHP
+#        uses: shivammathur/setup-php@v2
+#        with:
+#          php-version: '8.2'
+#
+#      - name: Install Composer dependencies
+#        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Build assets
-        run: pnpm run build
+        run: cd themes/user/app; pnpm install; pnpm run build;
+
+      - name: Archive build artifacts
+        run: |
+          grep composer.json | xargs rm
+          grep composer.lock | xargs rm
+          zip -r ../release.zip .
