@@ -1,7 +1,7 @@
 import config from "./Config.ts";
-import { BasicResponse } from "./BasicResponse.ts";
+import { BasicResponse, BasicResponseSchema } from "./Queue.ts";
 
-export default async function DeleteFailedJob(queueName: string): Promise<BasicResponse> {
+export default async function PurgeAllPendingJobs(queueName: string): Promise<BasicResponse> {
     const requestConfig = {
         method: 'POST',
         headers: {
@@ -15,14 +15,12 @@ export default async function DeleteFailedJob(queueName: string): Promise<BasicR
         }),
     };
 
-    return await fetch(config.urlPurgeAllPendingJobs, requestConfig)
-        .then(res => res.json())
-        .then(
-            (result) => {
-                return result;
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
+    try {
+        const response = await fetch(config.urlPurgeAllPendingJobs, requestConfig);
+        const data = await response.json();
+        return BasicResponseSchema.parse(data);
+    } catch (error) {
+        console.error('Error purging pending jobs:', error);
+        throw error;
+    }
 }

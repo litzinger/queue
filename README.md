@@ -185,13 +185,13 @@ To see working examples you can run the following commands.
 This will execute `queue/Commands/CommandQueueTest.php`, which adds 5 jobs to the queue, each an instance of `TestJob` (see below)
 
 ```bash
-php system/ee/eecli.php queue:test`
+php system/ee/eecli.php queue:test
 ```
 
 Then run this command, which will process the jobs, which calls the `fire()` method for each job.
 
 ```bash
-`php system/ee/eecli.php queue:work --limit=5`
+php system/ee/eecli.php queue:work --limit=5
 ```
 
 Example job class you can use as a starting point.

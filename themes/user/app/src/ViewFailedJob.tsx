@@ -2,37 +2,12 @@ import React, {useEffect, useState} from 'react';
 import { useParams, Link } from 'react-router';
 import GetFailedJob from "./GetFailedJob.ts";
 import RetryFailedJob from './RetryFailedJob.ts';
-import { FailedJob } from "./Queue.ts";
+import { FailedJob, createEmptyFailedJob } from "./Queue.ts";
 
 export default function ViewFailedJob (): React.ReactElement {
     const { jobId } = useParams<{ jobId: string }>();
-
-    if (!jobId) {
-        return (
-            <>Missing jobId</>
-        );
-    }
-
     const [loading, setLoading] = useState(true);
-    const [job, setJob] = useState<FailedJob>({
-        id: '',
-        uuid: '',
-        queue: '',
-        payload: {
-            uuid: '',
-            displayName: '',
-            job: '',
-            exception: '',
-            maxTries: 0,
-            maxExceptions: 0,
-            failOnTimeout: false,
-            backoff: 0,
-            timeout: 0,
-            data: '',
-        },
-        exception: '',
-        failed_at: 0,
-    });
+    const [job, setJob] = useState<FailedJob>(createEmptyFailedJob());
 
     useEffect(() => {
         if (!jobId) {
@@ -48,6 +23,12 @@ export default function ViewFailedJob (): React.ReactElement {
             })
             .finally(() => setLoading(false));
     }, [jobId]);
+
+    if (!jobId) {
+        return (
+            <>Missing jobId</>
+        );
+    }
 
     if (loading) {
         return <p>Loading...</p>;

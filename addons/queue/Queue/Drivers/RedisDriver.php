@@ -132,15 +132,15 @@ class RedisDriver implements QueueDriverInterface
         return array_map(function ($job) use ($queueName) {
             $decoded = json_decode($job);
 
-            return [
-                'id' => $decoded->uuid,
-                'queue' => $queueName,
-                'payload' => $decoded->data,
-                'attempts' => $decoded->attempts,
-                'available_at' => $decoded->available_at ?? 0,
-                'created_at' => $decoded->created_at ?? 0,
-                'reserved_at' => $decoded->reserved_at ?? 0,
-            ];
+            return (new PendingJob(
+                id: $decoded->id,
+                queue: $queueName,
+                payload: (string) $decoded->data,
+                attempts: $decoded->attempts ?? 0,
+                available_at: $decoded->available_at ?? 0,
+                created_at: $decoded->created_at ?? 0,
+                reserved_at: $decoded->reserved_at ?? 0,
+            ))->toArray();
         }, $queueList);
     }
 

@@ -1,5 +1,5 @@
 import config from "./Config.ts";
-import { BasicResponse } from "./BasicResponse.ts";
+import { BasicResponse, BasicResponseSchema } from "./Queue.ts";
 
 export default async function DeleteFailedJob(jobId: string): Promise<BasicResponse> {
     const requestConfig = {
@@ -15,14 +15,12 @@ export default async function DeleteFailedJob(jobId: string): Promise<BasicRespo
         }),
     };
 
-    return await fetch(config.urlDeleteFailedJob, requestConfig)
-        .then(res => res.json())
-        .then(
-            (result) => {
-                return result;
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
+    try {
+        const response = await fetch(config.urlDeleteFailedJob, requestConfig);
+        const data = await response.json();
+        return BasicResponseSchema.parse(data);
+    } catch (error) {
+        console.error('Error deleting failed job:', error);
+        throw error;
+    }
 }
