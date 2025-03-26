@@ -1,5 +1,5 @@
 import config from './Config.ts';
-import { FailedJob } from './Queue.ts';
+import { FailedJob, FailedJobSchema } from './Queue.ts';
 
 export default async function GetFailedJob(jobId: string): Promise<FailedJob> {
     const requestConfig = {
@@ -12,10 +12,12 @@ export default async function GetFailedJob(jobId: string): Promise<FailedJob> {
 
     const url = `${config.urlGetFailedJob}&jobId=${jobId}`;
 
-    return fetch(url, requestConfig)
-        .then((res) => res.json())
-        .catch((error) => {
-            console.error('Fetch error:', error);
-            throw error;
-        });
+    try {
+        const response = await fetch(url, requestConfig);
+        const data = await response.json();
+        return FailedJobSchema.parse(data);
+    } catch (error) {
+        console.error('Error fetching failed job:', error);
+        throw error;
+    }
 }

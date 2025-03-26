@@ -90,15 +90,15 @@ class DatabaseDriver implements QueueDriverInterface
             ->get();
 
         return array_map(function ($job) {
-            return [
-                'id' => $job->id,
-                'queue' => $job->queue,
-                'payload' => $job->payload,
-                'attempts' => $job->attempts,
-                'available_at' => $job->available_at,
-                'created_at' => $job->created_at,
-                'reserved_at' => $job->reserved_at,
-            ];
+            return (new PendingJob(
+                id: $job->id,
+                queue: $job->queue,
+                payload: $job->payload,
+                attempts: $job->attempts ?? 0,
+                available_at: $job->available_at ?? 0,
+                created_at: $job->created_at ?? 0,
+                reserved_at: $job->reserved_at ?? 0,
+            ))->toArray();
         }, $jobs->toArray());
     }
 
@@ -113,14 +113,13 @@ class DatabaseDriver implements QueueDriverInterface
             ->get();
 
         return array_map(function ($job) {
-            return [
-                'id' => $job->id,
-                'uuid' => $job->uuid,
-                'queue' => $job->queue,
-                'payload' => $job->payload,
-                'exception' => $job->exception,
-                'failed_at' => $job->failed_at,
-            ];
+            return (new FailedJob(
+                id: $job->id,
+                uuid: $job->uuid,
+                payload: $job->payload ?? '',
+                failed_at: $job->failed_at ?? '',
+                exception: $job->exception ?? '',
+            ))->toArray();
         }, $jobs->toArray());
     }
 

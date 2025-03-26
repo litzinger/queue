@@ -1,48 +1,83 @@
-export type PendingJob = {
-    id: string;
-    queue: string;
-    payload: string;
-    attempts: number;
-    reserved_at: number;
-    available_at: number;
-    created_at: number;
-};
+import { z } from "zod";
 
-export type FailedJobPayload = {
-    uuid: string;
-    displayName: string;
-    job: string;
-    exception: string;
-    maxTries: number;
-    maxExceptions: number;
-    failOnTimeout: false;
-    backoff: number;
-    timeout: number;
-    data: string;
-};
+export const BasicResponseSchema = z.object({
+    success: z.boolean(),
+});
 
-export type FailedJob = {
-    id: string;
-    uuid: string;
-    queue: string;
-    payload: FailedJobPayload;
-    exception: string;
-    failed_at: number;
-};
+export type BasicResponse = z.infer<typeof BasicResponseSchema>;
 
-export type PendingQueue = {
-    queueName: string;
-    count: number;
-    jobs: Array<PendingJob>;
-};
+export const PendingJobSchema = z.object({
+    id: z.string(),
+    queue: z.string(),
+    payload: z.any(),
+    attempts: z.number(),
+    reserved_at: z.number(),
+    available_at: z.number(),
+    created_at: z.number(),
+});
 
-export type FailedQueue = {
-    queueName: string;
-    count: number;
-    jobs: Array<FailedJob>;
+export const FailedJobPayloadSchema = z.object({
+    uuid: z.string(),
+    displayName: z.string(),
+    job: z.string(),
+    maxTries: z.number().nullable(),
+    maxExceptions: z.number().nullable(),
+    failOnTimeout: z.literal(false).nullable(),
+    backoff: z.number().nullable(),
+    timeout: z.number().nullable(),
+    data: z.any(),
+});
+
+export const FailedJobSchema = z.object({
+    id: z.number(),
+    uuid: z.string(),
+    queue: z.string(),
+    payload: FailedJobPayloadSchema,
+    exception: z.string(),
+    failed_at: z.string(),
+});
+
+export const PendingQueueSchema = z.object({
+    queueName: z.string(),
+    count: z.number(),
+    jobs: z.array(PendingJobSchema).default([]),
+});
+
+export const FailedQueueSchema = z.object({
+    queueName: z.string(),
+    count: z.number(),
+    jobs: z.array(FailedJobSchema).default([]),
+});
+
+export const QueueStatusResponseSchema = z.object({
+    pending: z.array(PendingQueueSchema).default([]),
+    failed: z.array(FailedQueueSchema).default([]),
+});
+
+export type PendingJob = z.infer<typeof PendingJobSchema>;
+export type FailedJobPayload = z.infer<typeof FailedJobPayloadSchema>;
+export type FailedJob = z.infer<typeof FailedJobSchema>;
+export type PendingQueue = z.infer<typeof PendingQueueSchema>;
+export type FailedQueue = z.infer<typeof FailedQueueSchema>;
+export type QueueStatusResponse = z.infer<typeof QueueStatusResponseSchema>;
+
+export function createEmptyFailedJob(): FailedJob {
+    return {
+        id: 0,
+        uuid: '',
+        queue: '',
+        payload: {
+            uuid: '',
+            displayName: '',
+            job: '',
+            maxTries: 0,
+            maxExceptions: 0,
+            failOnTimeout: false,
+            backoff: 0,
+            timeout: 0,
+            data: '',
+        },
+        exception: '',
+        failed_at: '',
+    };
 }
-
-export type QueueStatusResponse = {
-    pending: Array<PendingQueue>;
-    failed: Array<FailedQueue>;
-};

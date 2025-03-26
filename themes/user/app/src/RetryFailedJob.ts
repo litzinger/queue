@@ -1,5 +1,5 @@
 import config from "./Config.ts";
-import { BasicResponse } from "./BasicResponse.ts";
+import { BasicResponse, BasicResponseSchema } from "./Queue.ts";
 
 export default async function RetryFailedJob(jobId: string): Promise<BasicResponse> {
     const requestConfig = {
@@ -15,14 +15,12 @@ export default async function RetryFailedJob(jobId: string): Promise<BasicRespon
         }),
     };
 
-    return await fetch(config.urlRetryFailedJob, requestConfig)
-        .then(res => res.json())
-        .then(
-            (result) => {
-                return result;
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
+    try {
+        const response = await fetch(config.urlRetryFailedJob, requestConfig);
+        const data = await response.json();
+        return BasicResponseSchema.parse(data);
+    } catch (error) {
+        console.error('Error retrying failed job:', error);
+        throw error;
+    }
 }
