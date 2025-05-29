@@ -1266,12 +1266,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/litzinger/basee.git",
-                "reference": "39de517f89c67685025494a1cbfbb23b1218f625"
+                "reference": "b089be1492734fe466a877edc3b2f091b0784801"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/litzinger/basee/zipball/39de517f89c67685025494a1cbfbb23b1218f625",
-                "reference": "39de517f89c67685025494a1cbfbb23b1218f625",
+                "url": "https://api.github.com/repos/litzinger/basee/zipball/b089be1492734fe466a877edc3b2f091b0784801",
+                "reference": "b089be1492734fe466a877edc3b2f091b0784801",
                 "shasum": ""
             },
             "require": {
@@ -1297,9 +1297,9 @@
             "description": "Addon base for ExpressionEngine",
             "support": {
                 "issues": "https://github.com/litzinger/basee/issues",
-                "source": "https://github.com/litzinger/basee/tree/1.5.1"
+                "source": "https://github.com/litzinger/basee/tree/1.5.2"
             },
-            "time": "2025-05-28T13:04:36+00:00"
+            "time": "2025-05-28T23:58:41+00:00"
         },
         {
             "name": "nesbot/carbon",
