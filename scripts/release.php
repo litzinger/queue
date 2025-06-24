@@ -9,6 +9,7 @@ require_once __DIR__ . '/includes/tagging.php';
 // Create directories
 make_dir($tempDir);
 make_dir($tempDir . '/system/user/' . $addonDirName);
+make_dir($tempDir . '/' . $themeDirName);
 make_dir($outputDir);
 
 register_shutdown_function('rmdir_recursive', $tempDir);

@@ -35,12 +35,16 @@ foreach ($iterator as $name => $file) {
     }
 }
 
+// Get theme files, we aren't doing any file modifications, so don't need iterator
+exec('cp -r '. $themeDir . '/* ' . $tempDir . '/' . $themeDirName);
+
 // Cleanup
 exec('find '. $tempDir .' | grep composer.json | xargs rm');
 exec('find '. $tempDir .' | grep composer.lock | xargs rm');
 // Remove main vendor dir, we have everything scoped in vendor-build
 exec('rm -rf '. $tempDir . '/' . $addonDistDir . '/vendor');
 exec('rm -rf '. $tempDir . '/' . $addonDistDir . '/vendor-bin');
+exec('rm -rf '. $tempDir . '/' . $themeDistDir . '/app');
 
 // Create release archive
 $zipArchive = new ZipArchive();
