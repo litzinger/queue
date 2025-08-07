@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: '../queue',
+    emptyOutDir: false,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name].js', // Fixed file name for entry points

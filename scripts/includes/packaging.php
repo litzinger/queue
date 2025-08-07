@@ -11,6 +11,11 @@ if (file_exists($outputName)) {
     exit(1);
 }
 
+// Make a build of the React app for the CP
+exec('npm --prefix ./themes/user/app run build 2>&1', $output, $returnVar);
+echo "Return code: $returnVar\n";
+echo "Vite Build:\n" . implode("\n", $output);
+
 // Grab just the production dependencies
 exec('composer install -o --no-dev --no-ansi --no-interaction --working-dir='. $baseDir);
 

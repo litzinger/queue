@@ -147,7 +147,7 @@ export default function ViewQueueJobs() {
                                         Job
                                     </th>
                                     <th>
-                                        Retry
+                                        Actions
                                     </th>
                                 </tr>
                                 </thead>
