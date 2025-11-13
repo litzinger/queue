@@ -240,6 +240,12 @@ pnpm install
 pnpm build --emptyOutDir
 ```
 
+Or run from project root:
+
+```bash
+composer build-react
+```
+
 You will also need to install composer dependencies. From the root of this project run:
 
 ```bash
