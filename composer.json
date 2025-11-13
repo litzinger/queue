@@ -47,6 +47,9 @@
     "post-update-cmd": [
       "@composer bin all install --ansi",
       "@scope"
+    ],
+    "build-react": [
+      "cd themes/user/app; pnpm install; pnpm build --emptyOutDir"
     ]
   }
 }
