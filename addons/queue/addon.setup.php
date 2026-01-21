@@ -163,6 +163,13 @@ return [
                 enabled: get_bool_from_string($config['enable_logging'] ?? 'no'),
             );
         },
+        'QueueService' => function ($provider) {
+            return new \BoldMinded\Queue\Service\QueueService(
+                $provider->make('QueueManager'),
+                $provider->make('QueueWorker'),
+                $provider->make('QueueWorkerOptions')
+            );
+        },
     ],
     'commands' => [
         'queue:test' => BoldMinded\Queue\Commands\CommandQueueTest::class,

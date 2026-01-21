@@ -63,6 +63,8 @@ class CommandQueueWork extends Cli
      */
     public function handle()
     {
+        ee()->load->library('session');
+
         $this->container = ee('queue:QueueManager')->getContainer();
 
         $this->listenForEvents();
