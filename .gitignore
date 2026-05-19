@@ -1,5 +1,6 @@
 !**/.gitkeep
 *.zip
+.claude
 /vendor
 /addons/queue/vendor
 /addons/queue/vendor/**/.git

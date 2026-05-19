@@ -44,6 +44,7 @@ foreach ($iterator as $name => $file) {
 exec('cp -r '. $themeDir . '/* ' . $tempDir . '/' . $themeDirName);
 
 // Cleanup
+exec('find '. $tempDir .' | grep .claude | xargs rm');
 exec('find '. $tempDir .' | grep composer.json | xargs rm');
 exec('find '. $tempDir .' | grep composer.lock | xargs rm');
 // Remove main vendor dir, we have everything scoped in vendor-build
